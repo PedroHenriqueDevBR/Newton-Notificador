@@ -59,3 +59,12 @@ class StatusNotificacao(models.Model):
     class Meta:
         verbose_name = "Status"
         verbose_name_plural = "Status"
+
+
+class DetalheErro(models.Model):
+    mensagem = models.TextField(max_length=5000)
+    status = models.ForeignKey(
+        StatusNotificacao,
+        on_delete=models.CASCADE,
+        related_name="detalhes",
+    )

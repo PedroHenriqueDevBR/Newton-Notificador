@@ -53,12 +53,17 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = config("DEBUG", default=True, cast=bool)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
+# Auth
+LOGIN_URL = "/admin/"
+LOGOUT_REDIRECT_URL = "/admin/"
+LOGIN_REDIRECT_URL = "/"
+
 ROOT_URLCONF = "notificador.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

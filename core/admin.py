@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Notificacao, StatusNotificacao
+from .models import Notificacao, StatusNotificacao, DetalheErro
 
 
 @admin.register(Notificacao)
@@ -19,4 +19,12 @@ class StatusNotificacaoAdmin(admin.ModelAdmin):
         "registrado_em",
         "status",
         "notificacao",
+    )
+
+
+@admin.register(DetalheErro)
+class DetalheErroAdmin(admin.ModelAdmin):
+    list_display = (
+        "status",
+        "mensagem",
     )

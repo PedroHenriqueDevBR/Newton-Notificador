@@ -3,7 +3,7 @@ import smtplib
 import email.utils
 from email.message import EmailMessage
 import ssl
-from core.models import Notificacao, StatusNotificacao
+from core.models import Notificacao, StatusNotificacao, DetalheErro
 
 
 class CustomMailBackend:
@@ -49,11 +49,16 @@ class CustomMailBackend:
             server.sendmail(SENDER, RECIPIENT, msg.as_string())
             server.close()
         except Exception as e:
-            StatusNotificacao.objects.create(
+            mensagem = f"{e}"
+            status = StatusNotificacao.objects.create(
                 notificacao=notificacao,
                 status=StatusNotificacao.ERRO,
             )
-            print(f"Error: {e}")
+            DetalheErro.objects.create(
+                status=status,
+                mensagem=mensagem,
+            )
+            print(mensagem)
         else:
             StatusNotificacao.objects.create(
                 notificacao=notificacao,

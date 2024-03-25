@@ -1,0 +1,16 @@
+:root {
+    --background-color: #D4DED6;
+    --primary-color: #1E3231;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-color);
+}
+
+.primary-color {
+    background-color: var(--primary-color) !important;
+}

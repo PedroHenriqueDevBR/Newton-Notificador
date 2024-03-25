@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<nav class="navbar bg-body-tertiary primary-color">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1 text-white">Newton - Notificações</span>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <ol class="list-group list-group-numbered">
+        {% for notificacao in notificacoes %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">{{ notificacao.assunto }}</div>
+                {{ notificacao.sistema }}
+            </div>
+            {% for status in notificacao.status.all %}
+            <span class="badge text-white primary-color rounded-pill mx-1">{{ status.get_status_display }} -> {{ status.detalhes.first.mensagem }}</span>
+            {% endfor %}
+        </li>
+        {% empty %}
+        <span>Nenhuma notificação registrada</span>
+        {% endfor %}
+      </ol>
+</div>
+
+{% endblock body %}
