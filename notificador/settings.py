@@ -1,14 +1,15 @@
-from pathlib import Path
 import os
+from pathlib import Path
+from decouple import Csv
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-!%l$5wp#72-5*t()pe&^wckm91orx_7qhz=d@@4b-=lo$3j$"
-DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 # Application definition
 INSTALLED_APPS = [
@@ -44,14 +45,13 @@ REST_FRAMEWORK = {
 }
 
 # Mail
-EMAIL_HOST = ""
-EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = ""
-EMAIL_HOST_USER = ""
-EMAIL_HOST_PASSWORD = ""
-EMAIL_USE_TLS = True
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = config("DEBUG", default=True, cast=bool)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
 
 ROOT_URLCONF = "notificador.urls"
 
