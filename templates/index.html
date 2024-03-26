@@ -4,20 +4,28 @@
 
 <nav class="navbar bg-body-tertiary primary-color">
     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1 text-white">Newton - Notificações</span>
+        <span class="navbar-brand mb-0 h1 text-white">Newton - Notificador</span>
     </div>
 </nav>
 
 <div class="container mt-5">
-    <ol class="list-group list-group-numbered">
+    <ol class="list-group">
         {% for notificacao in notificacoes %}
         <li class="list-group-item d-flex justify-content-between align-items-start">
+            <input class="form-check-input me-1" type="checkbox" value="{{ notificacao.pk }}" id="notificacao-{{ notificacao.pk }}">
             <div class="ms-2 me-auto">
                 <div class="fw-bold">{{ notificacao.assunto }}</div>
                 {{ notificacao.sistema }}
             </div>
             {% for status in notificacao.status.all %}
-            <span class="badge text-white primary-color rounded-pill mx-1">{{ status.get_status_display }} -> {{ status.detalhes.first.mensagem }}</span>
+            <span 
+                class="badge text-white primary-color rounded-pill mx-1" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="left" 
+                data-bs-title="> {{ status.detalhes.first.mensagem|safe }}"
+            >
+                {{ status.get_status_display }}
+            </span>
             {% endfor %}
         </li>
         {% empty %}
