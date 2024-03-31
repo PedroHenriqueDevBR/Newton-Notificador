@@ -10,7 +10,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - ${DB_PORT}:5432
 
   web:
     build:
@@ -18,7 +18,7 @@ services:
       dockerfile: ./dockerfiles/python/Dockerfile
     command: python manage.py runserver 0.0.0.0:8000 --settings=notificador.settings.prod
     ports:
-      - "8000:8000"
+      - ${APP_HTTP_PORT}:8000
     volumes:
       - .:/code
     links:
