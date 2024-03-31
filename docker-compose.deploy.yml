@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: ./dockerfiles/python/Dockerfile
-    command: gunicorn transparencia.wsgi_prod:application --bind 0.0.0.0:8000
+    command: gunicorn notificador.wsgi_prod:application --bind 0.0.0.0:8000
     expose:
       - 8000
     volumes:
