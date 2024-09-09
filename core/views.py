@@ -1,13 +1,14 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.shortcuts import redirect, render
+from django.views.generic import View
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from core.models import Notificacao, StatusNotificacao
 from core.services.mail_service import MailService
-from django.views.generic import View
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -77,3 +78,17 @@ class NotificarApiView(APIView):
         if len(destinatarios) == 0:
             return False
         return True
+
+
+class ApresentarNotificacaoView(LoginRequiredMixin, View):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        notificacoes_query = Notificacao.objects.filter(pk=pk)  #  type: ignore
+        if not notificacoes_query.exists():
+            return redirect("index")
+
+        notificacao = notificacoes_query.first()
+        template_name = "detalhes.html"
+        context = {"notificacao": notificacao}
+        return render(request, template_name, context)
