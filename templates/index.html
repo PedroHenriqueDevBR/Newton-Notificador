@@ -15,7 +15,7 @@
             <!-- <input class="form-check-input me-1" type="checkbox" value="{{ notificacao.pk }}" id="notificacao-{{ notificacao.pk }}"> -->
             <div class="ms-2 me-auto">
                 <div class="fw-bold">
-                    <a href="{% url 'apresentar' notificacao.pk %}" style="text-decoration: dashed;">{{ notificacao.assunto }}</a>
+                    <a href="{% url 'apresentar' notificacao.pk %}" style="text-decoration: dashed;">{{ notificacao.pk }} - {{ notificacao.assunto }}</a>
                 </div>
                 {{ notificacao.sistema }} -> {{ notificacao.destinatarios }}
             </div>
