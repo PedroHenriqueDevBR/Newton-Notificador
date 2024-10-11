@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.http.request import HttpRequest
 from django.shortcuts import redirect, render
 from django.views.generic import View
 from rest_framework import status
@@ -14,11 +15,33 @@ from core.services.mail_service import MailService
 class IndexView(LoginRequiredMixin, View):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def buscar_notificacoes_sistemas(self, selecionados):
+        if len(selecionados) == 0:
+            Notificacao.objects.all().order_by("-id")
+
+        sistemas = []
+        for pk in selecionados:
+            sistemas_query = User.objects.filter(pk=pk)
+            if sistemas_query.exists():
+                sistemas.append(sistemas_query[0])
+
+        return Notificacao.objects.filter(sistema__in=sistemas)
+
+    def get(self, request: HttpRequest):
+        args = request.GET
+        selecionados = args.getlist("sistema")
+        selecionados = list(map(lambda pk: int(pk), selecionados))
+
         template_name = "index.html"
-        context = {
-            "notificacoes": Notificacao.objects.all().order_by("-id"),
-        }
+        context = {}
+        context["notificacoes"] = self.buscar_notificacoes_sistemas(
+            selecionados=selecionados,
+        )
+        context["sistemas"] = User.objects.filter(
+            is_staff=False,
+            is_superuser=False,
+        )
+        context["selecionados"] = selecionados
         return render(request, template_name, context)
 
 
