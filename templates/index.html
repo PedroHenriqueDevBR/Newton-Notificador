@@ -2,11 +2,12 @@
 
 {% block body %}
 
-<nav class="navbar bg-body-tertiary primary-color">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1 text-white">Newton - Notificador</span>
-    </div>
-</nav>
+<ul class="nav nav-tabs justify-content-center bg-success-subtle">
+    <li class="nav-item"><a class="nav-link link-success" href="#">Últimos envios</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="#">Sucesso</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="#">Erro</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="#">Aguardando</a></li>
+</ul>
 
 <div class="container mt-5">
     <ol class="list-group">
@@ -15,7 +16,7 @@
             <!-- <input class="form-check-input me-1" type="checkbox" value="{{ notificacao.pk }}" id="notificacao-{{ notificacao.pk }}"> -->
             <div class="ms-2 me-auto">
                 <div class="fw-bold">
-                    <a href="{% url 'apresentar' notificacao.pk %}" style="text-decoration: dashed;">{{ notificacao.pk }} - {{ notificacao.assunto }}</a>
+                    <a href="{% url 'apresentar' notificacao.pk %}" style="text-decoration: dashed;" class="link-success">{{ notificacao.pk }} - {{ notificacao.assunto }}</a>
                 </div>
                 {{ notificacao.sistema }} -> {{ notificacao.destinatarios }}
             </div>
