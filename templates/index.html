@@ -3,10 +3,10 @@
 {% block body %}
 
 <ul class="nav nav-tabs justify-content-center bg-success-subtle">
-    <li class="nav-item"><a class="nav-link link-success" href="#">Últimos envios</a></li>
-    <li class="nav-item"><a class="nav-link link-success" href="#">Sucesso</a></li>
-    <li class="nav-item"><a class="nav-link link-success" href="#">Erro</a></li>
-    <li class="nav-item"><a class="nav-link link-success" href="#">Aguardando</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="?status=0{{ sistemas_args }}">Últimos envios</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="?status=1{{ sistemas_args }}">Aguardando</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="?status=2{{ sistemas_args }}">Sucesso</a></li>
+    <li class="nav-item"><a class="nav-link link-success" href="?status=3{{ sistemas_args }}">Erro</a></li>
 </ul>
 
 <div class="container mt-5">
@@ -60,9 +60,9 @@
                 {% for num in notificacoes.paginator.page_range %}
                     <li class="page-item">
                         {% if notificacoes.number == num %}
-                        <a class="page-link text-success {% if notificacoes.number == num %} bg-success-subtle {% endif %}" href="?page={{ num }}{{ sistemas_args }}">{{ num }}</a>
+                        <a class="page-link text-success {% if notificacoes.number == num %} bg-success-subtle {% endif %}" href="?page={{ num }}{{ sistemas_args }}{{ status_args }}">{{ num }}</a>
                         {% elif num > notificacoes.number|add:'-3' and num < notificacoes.number|add:'3' %}
-                        <a class="page-link text-success {% if notificacoes.number == num %} bg-success-subtle {% endif %}" href="?page={{ num }}{{ sistemas_args }}">{{ num }}</a>
+                        <a class="page-link text-success {% if notificacoes.number == num %} bg-success-subtle {% endif %}" href="?page={{ num }}{{ sistemas_args }}{{ status_args }}">{{ num }}</a>
                         {% endif %}
                     </li>
                 {% endfor %}
