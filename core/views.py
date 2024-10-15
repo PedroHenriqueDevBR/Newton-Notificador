@@ -41,7 +41,7 @@ class IndexView(LoginRequiredMixin, View):
                     Q(status__status=2) | Q(status__status=3),
                 )
 
-        paginator = Paginator(objetos, 2)
+        paginator = Paginator(objetos, 20)
         return paginator.get_page(pagina)
 
     def formatar_sistemas_args(self, selecionados):
