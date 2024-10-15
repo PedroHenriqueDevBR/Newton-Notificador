@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from django.shortcuts import redirect, render
 from django.views.generic import View
+from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,9 +16,10 @@ from core.services.mail_service import MailService
 class IndexView(LoginRequiredMixin, View):
     permission_classes = [IsAuthenticated]
 
-    def buscar_notificacoes_sistemas(self, selecionados):
+    def buscar_notificacoes_sistemas(self, selecionados, pagina):
+        objetos = []
         if len(selecionados) == 0:
-            Notificacao.objects.all().order_by("-id")
+            objetos = Notificacao.objects.all().order_by("-id")
 
         sistemas = []
         for pk in selecionados:
@@ -25,21 +27,35 @@ class IndexView(LoginRequiredMixin, View):
             if sistemas_query.exists():
                 sistemas.append(sistemas_query[0])
 
-        return Notificacao.objects.filter(sistema__in=sistemas)
+        if len(sistemas) > 0:
+            objetos = Notificacao.objects.filter(sistema__in=sistemas)
+
+        paginator = Paginator(objetos, 20)
+        return paginator.get_page(pagina)
+
+    def formatar_sistemas_args(self, selecionados):
+        argumento = ""
+        for selecionado in selecionados:
+            argumento += f"&sistema={selecionado}"
+        return argumento
 
     def get(self, request: HttpRequest):
         args = request.GET
         selecionados = args.getlist("sistema")
+        pagina = request.GET.get("page")
         selecionados = list(map(lambda pk: int(pk), selecionados))
 
         template_name = "index.html"
         context = {}
         context["notificacoes"] = self.buscar_notificacoes_sistemas(
-            selecionados=selecionados,
+            selecionados=selecionados, pagina=pagina
         )
         context["sistemas"] = User.objects.filter(
             is_staff=False,
             is_superuser=False,
+        )
+        context["sistemas_args"] = self.formatar_sistemas_args(
+            selecionados=selecionados,
         )
         context["selecionados"] = selecionados
         return render(request, template_name, context)
