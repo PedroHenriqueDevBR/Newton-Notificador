@@ -2,12 +2,6 @@
 
 {% block body %}
 
-<nav class="navbar bg-body-tertiary primary-color">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1 text-white">Newton - Notificador</span>
-    </div>
-</nav>
-
 <div class="container mt-5">
     
     {% for status in notificacao.status.all %}
@@ -17,8 +11,17 @@
         data-bs-placement="left" 
         data-bs-title="> {{ status.detalhes.first.mensagem|safe }}"
     >
-        {{ status.get_status_display }}
+    {{ status.get_status_display }}
     </span>
+    {% endfor %}
+
+    {% for status in notificacao.status.all %}
+    {% if status.status == 3 %}
+    <div class="alert alert-danger mt-4">
+        {{ status.get_status_display }} ->
+        {{ status.detalhes.first.mensagem|safe }}
+    </div>
+    {% endif %}
     {% endfor %}
     
     <div class="card card-body mt-4">
