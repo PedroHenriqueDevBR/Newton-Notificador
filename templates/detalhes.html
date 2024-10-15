@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container mt-5">
+    
+    {% for status in notificacao.status.all %}
+    <span 
+        class="badge text-white primary-color rounded-pill mx-1" 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="left" 
+        data-bs-title="> {{ status.detalhes.first.mensagem|safe }}"
+    >
+    {{ status.get_status_display }}
+    </span>
+    {% endfor %}
+
+    {% for status in notificacao.status.all %}
+    {% if status.status == 3 %}
+    <div class="alert alert-danger mt-4">
+        {{ status.get_status_display }} ->
+        {{ status.detalhes.first.mensagem|safe }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    
+    <div class="card card-body mt-4">
+    
+        <h1>{{ notificacao.assunto }}</h1>
+        <p style="margin: 0;"><b>Sistema:</b> {{ notificacao.sistema }}</p>
+        <p style="margin: 0;"><b>Para:</b> {{ notificacao.destinatarios }}</p>
+    
+        <hr>
+    
+        <div>{{ notificacao.conteudo|safe }}</div>
+    </div>
+        
+</div>
+
+{% endblock body %}

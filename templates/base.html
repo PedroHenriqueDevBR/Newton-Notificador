@@ -9,11 +9,52 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
   </head>
   <body>
+    <nav class="navbar bg-success sticky-top border-bottom border-body">
+      <div class="container">
+          <a class="navbar-brand text-white fw-bolder">
+            <img src="{% static 'images/logo.jpeg' %}" alt="logo" width="40" class="rounded me-3 ">
+            Notificador
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Sistemas</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <hr style="margin: 0 0 16px 0;">
+              <form method="get">
+                <ul class="list-group list-group-flush">
+                  {% for sistema in sistemas %}
+                  <li class="list-group-item">
+                    <input class="form-check-input me-1" type="checkbox" value="{{ sistema.pk }}" id="sistema-{{ sistema.pk }}" name="sistema" {% if sistema.pk in selecionados %}checked="true"{% endif %}>
+                    <label class="form-check-label stretched-link" for="sistema-{{ sistema.pk }}">{{ sistema.get_full_name }}</label>
+                  </li>
+                  {% endfor %}
+                </ul>
+                <div class="d-grid gap-2 mt-4">
+                  <button class="btn btn-success" type="submit">Filtrar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+      </div>
+    </nav>
 
     {% block body %}
     {% endblock body %}
-
+    
+    <div class="mt-5"></div>
+    
+    <script src="{% static 'js/jquery-3.7.1.slim.min.js' %}"></script>
     <script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    <script>
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    </script>
   </body>
 </html>

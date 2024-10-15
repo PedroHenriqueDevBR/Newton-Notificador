@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_NAME=${DB_DATABASE_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - ${DB_PORT}:5432
+
+  web:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/python/Dockerfile
+    command: gunicorn notificador.wsgi_prod:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    volumes:
+      - .:/code
+    links:
+      - db
+    depends_on:
+      - db
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/nginx/Dockerfile
+    volumes:
+      - ./staticfiles/:/code/staticfiles
+      - ./mediafiles/:/code/mediafiles
+    ports:
+      - ${APP_HTTP_PORT}:80
+      - ${APP_HTTPS_PORT}:443
+    depends_on:
+      - web
+
+volumes:
+  static_volume:
+  media_volume:
