@@ -68,7 +68,7 @@ DB_PORT=5432
 
 ```
 
-**Há 4 (quatro) formas de configurar o sistema:**
+**Há 5 (cinco) formas de configurar o sistema:**
 
 ### 1. Utilizando diretamente o Python para executar aplicação no terminal
 
