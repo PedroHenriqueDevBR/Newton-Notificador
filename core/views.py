@@ -32,16 +32,16 @@ class IndexView(LoginRequiredMixin, View):
                 sistema__in=sistemas,
             ).order_by("-id")
 
-            if status != "" and status != "0":
-                status = int(status)
-                objetos = objetos.filter(status__status=status)
+        if status != "" and status != "0":
+            status = int(status)
+            objetos = objetos.filter(status__status=status)
 
-            if status == 1:
-                objetos = objetos.exclude(
-                    Q(status__status=2) | Q(status__status=3),
-                )
+        if status == 1:
+            objetos = objetos.exclude(
+                Q(status__status=2) | Q(status__status=3),
+            )
 
-        paginator = Paginator(objetos, 2)
+        paginator = Paginator(objetos, 20)
         return paginator.get_page(pagina)
 
     def formatar_sistemas_args(self, selecionados):
