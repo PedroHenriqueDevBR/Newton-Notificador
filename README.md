@@ -183,3 +183,60 @@ docker compose -f docker-compose.deploy.yml exec web python manage.py migrate --
 # Criar um usuário para acessar o sistema
 docker compose -f docker-compose.deploy.yml exec web python manage.py createsuperuser --settings=notificador.settings.prod
 ```
+
+## Utilização do sistema
+
+Após a configuração e execução do sistema, acesse o endereço http://seu-ip/admin. Este link direciona para a página de administração do Django.
+
+Todos os sistemas que enviarem requisições para o sistema de notificação serão tratados como usuários com permissões de acesso e envio de requisições HTTP. Portanto, na página de administração, clique em "Usuários" e adicione um novo registro para representar o sistema que realizará as requisições.
+
+### Criação de usuário/sistema
+
+Preencha os campos "Usuário", "Senha" e "Confirmação de Senha" e, em seguida, salve o registro. Após isso, clique no registro recém-criado e modifique o campo "Primeiro Nome" para facilitar a identificação do sistema nas páginas de detalhes das notificações.
+
+**Observação:** Um usuário com perfil de membro da equipe ou com status de superusuário não será considerado como um sistema requisitante.
+
+### Criação de token de acesso
+
+O token é utilizado para permitir que os sistemas enviem requisições de notificação.
+
+Para criar um token, clique em "Tokens" no menu lateral esquerdo e selecione "Adicionar Token". Escolha o usuário que, neste caso, será o sistema que acabamos de criar.
+
+Pronto! A partir deste ponto, o sistema já está habilitado para enviar requisições de notificação.
+
+### Enviando uma requisição de notificação
+
+Neste exemplo, utilizaremos o Insomnia para enviar as requisições de notificação. Todo o processo de envio de notificações é baseado em requisições HTTP. Confira o exemplo abaixo para entender como realizar essa requisição.
+
+
+**Url para requisição**
+```
+http://seu-ip/api/v1/notificar
+```
+
+
+**Headers**
+```json
+{
+    "Content-Type": "application/json",
+    "Authorization": "Token token-que-criamos-no-passo-anterior"
+}
+```
+
+**Corpo da requisição**
+```json
+{
+	"destinatarios": "user@mail.com",
+	"assunto": "Teste de envio",
+	"conteudo": "Teste de envio",
+	"eh_html": true
+}
+```
+
+### Acompanhar o andamento da solicitação de notificações
+
+Na página inicial do sistema, todas as solicitações são listadas em ordem decrescente de envio.
+
+Cada linha de solicitação exibe uma lista de status ao final. Quando uma solicitação é recebida pelo sistema, ela recebe o status de "Recebido". Em seguida, o sistema tenta enviar a notificação. Se o envio for bem-sucedido, o status será atualizado para "Enviado"; caso ocorra algum problema, o status será alterado para "Erro".
+
+Ao clicar em uma notificação para ver mais detalhes, é possível visualizar o conteúdo enviado e, em caso de falhas, a mensagem de erro correspondente.
