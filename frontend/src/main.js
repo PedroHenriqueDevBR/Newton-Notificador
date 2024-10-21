@@ -1,4 +1,6 @@
-import './assets/main.css'
+import './assets/css/main.css'
+import './assets/css/uikit.min.css'
+import './assets/js/uikit.min.js'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

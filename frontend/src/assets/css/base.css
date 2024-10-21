@@ -1,0 +1,47 @@
+:root {
+  --background-color: #e8eaf6;
+  --primary-color: #3f51b5;
+  --primary-color-light: #c5cae9;
+
+  --on-primary-color: var(--primary-color-light);
+  --on-primary-color-light: var(--primary-color);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  background: var(--background-color);
+  min-height: 100vh;
+}
+
+.primary-color {
+  background-color: var(--primary-color) !important;
+  color: var(--on-primary-color) !important;
+}
+
+.primary-color-light {
+  background-color: var(--primary-color-light) !important;
+  color: var(--on-primary-color-light) !important;
+}
+
+.on-primary-color-text {
+  color: var(--on-primary-color) !important;
+}
+
+.on-primary-color-light-text {
+  color: var(--on-primary-color-light) !important;
+}
+
+.uk-card {
+  border-radius: 8px;
+}
+
+.uk-tab>.uk-active>a {
+  border-color: var(--primary-color) !important;
+}
