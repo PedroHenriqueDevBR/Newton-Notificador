@@ -1,12 +1,16 @@
-<script setup></script>
+<script setup>
+
+import { RouterLink } from 'vue-router';
+</script>
 
 <template>
     <h2>Opções</h2>
 
     <div class="uk-card uk-card-body uk-background-muted">
 
-        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom">Notificação
-            instantânea</button>
+        <RouterLink to="notificar" class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom">
+            Notificação instantânea
+        </RouterLink>
         <button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom">Agendar notificação</button>
 
         <hr class="uk-divider-icon">
