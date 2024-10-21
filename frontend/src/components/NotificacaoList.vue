@@ -6,25 +6,30 @@ import NotificacaoItem from './NotificacaoItem.vue';
 <template>
     <h2>Notificações</h2>
     <dl class="uk-description-list">
-        <RouterLink to="detalhes">
+        <RouterLink to="detalhes" class="remove-decoration">
             <NotificacaoItem />
         </RouterLink>
-        <RouterLink to="detalhes">
+        <RouterLink to="detalhes" class="remove-decoration">
             <NotificacaoItem />
         </RouterLink>
-        <RouterLink to="detalhes">
+        <RouterLink to="detalhes" class="remove-decoration">
             <NotificacaoItem />
         </RouterLink>
-        <RouterLink to="detalhes">
+        <RouterLink to="detalhes" class="remove-decoration">
             <NotificacaoItem />
         </RouterLink>
-        <RouterLink to="detalhes">
+        <RouterLink to="detalhes" class="remove-decoration">
             <NotificacaoItem />
         </RouterLink>
-        <RouterLink to="detalhes">
+        <RouterLink to="detalhes" class="remove-decoration">
             <NotificacaoItem />
         </RouterLink>
     </dl>
 </template>
 
-<style scoped></style>
+<style scoped>
+.remove-decoration {
+    text-decoration: none !important;
+    color: inherit;
+}
+</style>

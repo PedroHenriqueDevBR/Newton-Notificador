@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-    <div class="uk-card uk-card-body uk-background-muted uk-padding-small uk-margin-small">
+    <div class="uk-card uk-card-body uk-background-muted uk-card-hover uk-padding-small uk-margin-small">
         <dt>Description term</dt>
         <dd>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</dd>
         <span class="uk-badge uk-margin-small-right aguardando">Aguardando</span>
@@ -11,12 +11,6 @@
 </template>
 
 <style scoped>
-dt,
-dd {
-    text-decoration: none !important;
-    color: var(--primary-color);
-}
-
 .aguardando {
     background-color: #039be5;
 }
