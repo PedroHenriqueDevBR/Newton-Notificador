@@ -10,11 +10,22 @@ import { RouterLink } from 'vue-router';
         <div class="uk-container uk-card uk-card-body uk-background-muted">
             <h1>
                 <RouterLink to="/" class="uk-margin-small-right" uk-icon="icon: arrow-left; ratio: 2"></RouterLink>
-                Notificação Instantânea
+                Agendar Notificação
             </h1>
             <hr class="uk-divider-small">
 
             <form class="uk-form-stacked">
+                <div class="uk-margin">
+                    <label class="uk-form-label">Agendar para</label>
+                    <div class="uk-form controls uk-flex uk-flex-middle">
+                        <input class="uk-input" type="date" placeholder="Input" aria-label="Input">
+                        <span class="uk-margin-left uk-margin-right">às</span>
+                        <input class="uk-input" type="time" placeholder="Input" aria-label="Input">
+                    </div>
+                </div>
+
+                <hr class="uk-divider-small">
+
                 <div class="uk-margin">
                     <label class="uk-form-label" for="form-stacked-text">Destinatário:</label>
                     <div class="uk-form-controls">
@@ -34,8 +45,9 @@ import { RouterLink } from 'vue-router';
                 </div>
 
                 <hr class="uk-divider-small">
+
                 <RouterLink to="/" class="uk-button uk-button-default">Cancelar</RouterLink>
-                <button class="uk-button uk-button-primary">Enviar</button>
+                <button class="uk-button uk-button-primary">Agendar</button>
             </form>
         </div>
     </main>

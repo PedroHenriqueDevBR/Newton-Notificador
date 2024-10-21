@@ -49,3 +49,7 @@ body {
 .uk-tab>.uk-active>a {
   border-color: var(--primary-color) !important;
 }
+
+.uk-button-primary {
+  background-color: var(--primary-color) !important;
+}
