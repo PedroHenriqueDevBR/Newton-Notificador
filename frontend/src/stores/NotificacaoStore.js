@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import NotificacaoRepository from '@/repositories/NotificacaoRepository'
 
-export const useNotificacaoStore = defineStore('notificacoes', () => {
+export const useNotificacaoStore = defineStore('NotificacoesStore', () => {
     const notificacoes = ref([])
     const repository = new NotificacaoRepository();
 
