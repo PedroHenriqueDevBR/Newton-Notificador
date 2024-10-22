@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.serializers.notificacao_serializers import NotificacaoSerializer, SistemaSerializer
 from core.models import Notificacao, StatusNotificacao
 from core.services.mail_service import MailService
 
@@ -77,6 +78,27 @@ class IndexView(LoginRequiredMixin, View):
         )
         context["selecionados"] = selecionados
         return render(request, template_name, context)
+
+
+class NotificacoesApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notificacoes = Notificacao.objects.all()
+        serializer = NotificacaoSerializer(notificacoes, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    
+
+class SistemasApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sistemas = User.objects.filter(
+            is_staff=False,
+            is_superuser=False,
+        )
+        serializer = SistemaSerializer(sistemas, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class NotificarApiView(APIView):
