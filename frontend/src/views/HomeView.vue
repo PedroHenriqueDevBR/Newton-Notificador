@@ -1,7 +1,7 @@
 <script setup>
-import NavBar from '@/components/NavBar.vue';
-import NotificacaoList from '@/components/NotificacaoList.vue';
-import NotificacaoOpcoes from '@/components/NotificacaoOpcoes.vue';
+import NavBar from '@/components/NavBar.vue'
+import NotificacaoList from '@/components/NotificacaoList.vue'
+import NotificacaoOpcoes from '@/components/NotificacaoOpcoes.vue'
 </script>
 
 <template>
@@ -16,7 +16,6 @@ import NotificacaoOpcoes from '@/components/NotificacaoOpcoes.vue';
       <div class="uk-width-expand@m">
         <NotificacaoList />
       </div>
-
     </div>
   </main>
 </template>
