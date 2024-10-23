@@ -2,6 +2,21 @@
 import NavBar from '@/components/NavBar.vue'
 import NotificacaoList from '@/components/NotificacaoList.vue'
 import NotificacaoOpcoes from '@/components/NotificacaoOpcoes.vue'
+
+import { useAuthStore } from '@/stores/AuthStore';
+import { useRouter } from 'vue-router';
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+async function usuarioLogado() {
+  const logado = await authStore.verificarToken()
+  console.log('logado: ' + logado)
+  if (!logado) router.push('/auth');
+  console.log('Usuário logado')
+}
+
+usuarioLogado()
 </script>
 
 <template>

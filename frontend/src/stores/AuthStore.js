@@ -8,7 +8,12 @@ export const useAuthStore = defineStore('AuthStore', () => {
 
     async function verificarToken() {
         const token = await repository.token()
-        if (token != null) logado.value = true
+        if (token != null) {
+            logado.value = true
+        } else {
+            logado.value = false
+        }
+        return logado.value
     }
 
     async function autenticar(username, password) {
@@ -27,5 +32,5 @@ export const useAuthStore = defineStore('AuthStore', () => {
 
     verificarToken();
 
-    return { autenticar, encerrarSessao, logado }
+    return { autenticar, encerrarSessao, logado, verificarToken }
 })

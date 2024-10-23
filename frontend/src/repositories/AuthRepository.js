@@ -35,7 +35,7 @@ class AuthRepository {
 
     salvarCredenciais(access, refresh) {
         localStorage.setItem(this.access_key, access)
-        localStorage.setItem(this.refresh, refresh)
+        localStorage.setItem(this.refresh_key, refresh)
     }
 
     limparToken() {
