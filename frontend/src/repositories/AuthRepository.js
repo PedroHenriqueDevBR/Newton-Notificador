@@ -26,7 +26,8 @@ class AuthRepository {
     }
 
     async token() {
-        return await localStorage.getItem(this.access_key)
+        const token = await localStorage.getItem(this.access_key)
+        return 'Bearer ' + token
     }
 
     atualizarAccess(access) {
