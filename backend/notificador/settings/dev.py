@@ -17,6 +17,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = config("DEBUG", default=True, cast=bool)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
+CORS_ALLOWED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv())
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
