@@ -11,9 +11,7 @@ const router = useRouter()
 
 async function usuarioLogado() {
   const logado = await authStore.verificarToken()
-  console.log('logado: ' + logado)
   if (!logado) router.push('/auth');
-  console.log('Usuário logado')
 }
 
 usuarioLogado()
