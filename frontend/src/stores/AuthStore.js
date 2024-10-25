@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import AuthRepository from "@/repositories/AuthRepository";
+import { AuthException, ServerException } from "@/exception/CustomExceptions";
 
 export const useAuthStore = defineStore('AuthStore', () => {
     const logado = ref(false)
@@ -17,11 +18,18 @@ export const useAuthStore = defineStore('AuthStore', () => {
     }
 
     async function autenticar(username, password) {
-        const response = await repository.autenticar(username, password)
-        if (response == true) {
-            logado.value = true
-        } else {
-            logado.value = false
+        try {
+            const response = await repository.autenticar(username, password)
+
+            if (response == true) {
+                logado.value = true
+            } else {
+                logado.value = false
+            }
+        } catch(erro) {
+            if (erro instanceof AuthException) throw new AuthException()
+            if (erro instanceof ServerException) throw new ServerException()
+            throw new ServerException()
         }
     }
 

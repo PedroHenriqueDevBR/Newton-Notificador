@@ -1,3 +1,5 @@
+import { AuthException, ServerException } from "@/exception/CustomExceptions"
+
 class AuthRepository {
 
     constructor() {
@@ -17,6 +19,9 @@ class AuthRepository {
             method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }
         })
 
+        if (response.status == 401) throw new AuthException()
+        if (response.status == 404) throw new NotFoundException()
+        if (response.status >= 500) throw new ServerException()
         if (response.status >= 200 && response.status < 300) {
             const json = await response.json()
             this.salvarCredenciais(json.access, json.refresh)

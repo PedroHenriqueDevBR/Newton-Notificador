@@ -1,4 +1,5 @@
 <script setup>
+import { AuthException } from '@/exception/CustomExceptions';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -11,11 +12,17 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 async function autenticar() {
-  await authStore.autenticar(username.value, password.value)
-  if (authStore.logado) {
-    router.push('/')
-  } else {
-    erro.value = 'Problemas com a requisição'
+  try {
+    await authStore.autenticar(username.value, password.value)
+    if (authStore.logado) {
+      router.push('/')
+    } else {
+      erro.value = 'Problemas com a requisição'
+    }
+  } catch(erroResponse) {
+    if (erroResponse instanceof AuthException) {
+      erro.value = 'Usuário ou senha incorreto'
+    }
   }
 }
 
