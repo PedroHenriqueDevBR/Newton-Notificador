@@ -1,21 +1,31 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import NotificacaoItem from './NotificacaoItem.vue'
 import { useNotificacaoStore } from '@/stores/NotificacaoStore'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { AuthException, ServerException } from '@/exception/CustomExceptions'
 
 const notificacaoStore = useNotificacaoStore()
-let paginaAtual = 0
 let carregando = ref(false)
 let haMaisNotificacoes = ref(true)
+
+const router = useRouter()
 
 async function carregarNotificacoes() {
     carregando.value = true;
     const quantidadeAtual = notificacaoStore.notificacoes.length
-    await notificacaoStore.carregarLista(paginaAtual)
-    const novaQuantidade = notificacaoStore.notificacoes.length
-    if (quantidadeAtual == novaQuantidade) haMaisNotificacoes.value = false
-    carregando.value = false;
+
+    try {
+        await notificacaoStore.carregarLista()
+        const novaQuantidade = notificacaoStore.notificacoes.length
+        if (quantidadeAtual == novaQuantidade) haMaisNotificacoes.value = false
+    } catch (erro) {
+        if (erro instanceof AuthException) router.push('/auth')
+        if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
+    } finally {
+        carregando.value = false;
+    }
+
 }
 
 function mostrarCarregando() {
@@ -29,6 +39,8 @@ function mostrarContainerNotificacoes() {
 function mostrarBotaoCarregarMais() {
     return !carregando.value && haMaisNotificacoes && notificacaoStore.notificacoes.length > 0;
 }
+
+onMounted(() => { if (notificacaoStore.notificacoes.length == 0) carregarNotificacoes() })
 </script>
 
 <template>

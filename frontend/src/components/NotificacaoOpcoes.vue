@@ -1,13 +1,24 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useSistemaStore } from '@/stores/SistemaStore';
 import { onMounted } from 'vue';
+import { AuthException, ServerException } from '@/exception/CustomExceptions';
 
 const sistemaStore = useSistemaStore()
+const router = useRouter()
 
+async function carregarSistemas() {
+  try {
+    await sistemaStore.buscarSistemas()
+  } catch (erro) {
+    if (erro instanceof AuthException) router.push('/auth')
+    if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
+  }
+
+}
 
 onMounted(() => {
-  sistemaStore.buscarSistemas()
+  carregarSistemas()
 })
 
 </script>

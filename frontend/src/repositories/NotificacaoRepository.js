@@ -1,22 +1,15 @@
 import Notificacao from '@/models/NotificacaoModel'
-import AuthRepository from './AuthRepository'
+import RequestApi from './RequestAPI'
+import { AuthException, ServerException } from '@/exception/CustomExceptions'
 
 class NotificacaoRepository {
-    constructor() {
-        this.urlBase = 'http://localhost:8000'
-        this.authRepository = new AuthRepository()
-    }
+    constructor() { this.requester = new RequestApi() }
 
-    async buscarNotificacoes(pagina) {
-        const url = this.urlBase + '/api/v1/notificacoes'
-        const token = await this.authRepository.token()
-        const response = await fetch(url, {
-            headers: { 'Content-Type': 'application/json', 'Authorization': token }
-        })
-
-        if (response.status >= 200 && response.status < 300) {
+    async buscarNotificacoes() {
+        const url = '/api/v1/notificacoes'
+        try {
+            const dados = await this.requester.get(url)
             const notificacoes = []
-            const dados = await response.json()
             for (const dado of dados) {
                 const lista_status = []
                 for (const item of dado.status) lista_status.push(item.get_status_display);
@@ -24,6 +17,11 @@ class NotificacaoRepository {
             }
             return notificacoes
         }
+        catch (erro) {
+            if (erro instanceof AuthException) throw new AuthException()
+            if (erro instanceof ServerException) throw new ServerException()
+        }
+
         return []
     }
 }

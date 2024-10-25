@@ -22,7 +22,31 @@ class AuthRepository {
             this.salvarCredenciais(json.access, json.refresh)
             return true
         }
+
         return false
+    }
+
+    async atualizarAccessToken() {
+        const url = this.urlBase + '/api/v1/auth/refresh'
+        const refresh = await this.refreshToken()
+        const body = { "refresh": refresh }
+
+        const response = await fetch(url, {
+            method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }
+        })
+
+        if (response.status >= 200 && response.status < 300) {
+            const json = await response.json()
+            this.salvarNovoAccessToken(json.access)
+            return true
+        }
+
+        this.limparToken()
+        return false
+    }
+
+    salvarNovoAccessToken(access) {
+        localStorage.setItem(this.access_key, access)
     }
 
     async token() {
@@ -30,8 +54,9 @@ class AuthRepository {
         return 'Bearer ' + token
     }
 
-    atualizarAccess(access) {
-        localStorage.setItem(this.access_key, access)
+    async refreshToken() {
+        const refresh = await localStorage.getItem(this.refresh_key)
+        return refresh
     }
 
     salvarCredenciais(access, refresh) {
@@ -41,7 +66,7 @@ class AuthRepository {
 
     limparToken() {
         localStorage.removeItem(this.access_key)
-        localStorage.removeItem(this.refresh)
+        localStorage.removeItem(this.refresh_key)
     }
 }
 

@@ -30,7 +30,5 @@ export const useAuthStore = defineStore('AuthStore', () => {
         this.logado = false
     }
 
-    verificarToken();
-
     return { autenticar, encerrarSessao, logado, verificarToken }
 })
