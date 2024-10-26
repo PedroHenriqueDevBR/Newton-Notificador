@@ -1,4 +1,5 @@
 import stat
+from tracemalloc import stop
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AbstractBaseUser, AnonymousUser
 from django.http.request import HttpRequest
@@ -88,17 +89,26 @@ class NotificacoesApiView(APIView):
 
     def get(self, request: HttpRequest):
         status_arg = request.GET.get('status', '')
-        notificacoes = self.carregar_notificacoes(status_arg=status_arg)
+        sistemas_arg = request.GET.getlist('sistema', [])
+        notificacoes = self.carregar_notificacoes(status_arg=status_arg, sistemas_arg=sistemas_arg,)
         serializer = NotificacaoSerializer(notificacoes, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
     
-    def carregar_notificacoes(self, status_arg: str = '',) -> BaseManager[Notificacao]:
+    def carregar_notificacoes(
+            self,
+            status_arg: str = '',
+            sistemas_arg: list = [],
+    ) -> BaseManager[Notificacao]:
         notificacoes = Notificacao.objects.all()
-        if status_arg == '':
-            return notificacoes
-        notificacoes = self.filtrar_status(notificacoes=notificacoes, status_arg=status_arg,)
+        if status_arg != '':
+            notificacoes = self.filtrar_status(notificacoes=notificacoes, status_arg=status_arg,)
+        if len(sistemas_arg) != 0:
+            notificacoes = self.filtrar_sistema(notificacoes=notificacoes, sistemas_arg=sistemas_arg,)
         return notificacoes
-        
+    
+    def filtrar_sistema(self, notificacoes: BaseManager[Notificacao], sistemas_arg: list[int]):
+        sistemas = map(lambda sistema: int(sistema), sistemas_arg)
+        return notificacoes.filter(sistema__id__in=sistemas)
     
     def filtrar_status(self, notificacoes: BaseManager[Notificacao], status_arg: str):
         if status_arg not in ['1','2','3','4']:
