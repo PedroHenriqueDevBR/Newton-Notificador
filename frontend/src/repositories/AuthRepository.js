@@ -1,4 +1,4 @@
-import { AuthException, ServerException } from "@/exception/CustomExceptions"
+import { AuthException, ServerException, NotFoundException } from "@/exception/CustomExceptions"
 
 class AuthRepository {
 
@@ -60,8 +60,7 @@ class AuthRepository {
     }
 
     async refreshToken() {
-        const refresh = await localStorage.getItem(this.refresh_key)
-        return refresh
+        return await localStorage.getItem(this.refresh_key)
     }
 
     salvarCredenciais(access, refresh) {

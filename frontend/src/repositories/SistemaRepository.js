@@ -11,8 +11,6 @@ class SistemaRepository {
         const url = '/api/v1/sistemas'
         try {
             const dados = await this.requester.get(url)
-            console.log(dados)
-
             const sistemas = []
             for (const dado of dados) {
                 sistemas.push(new SistemaModel(dado.id, dado.first_name))

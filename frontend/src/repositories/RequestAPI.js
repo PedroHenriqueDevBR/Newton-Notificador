@@ -19,7 +19,7 @@ export default class RequestApi {
         if (response.status == 401 && tentativas == 0) {
             const sucesso = await this.authRepository.atualizarAccessToken()
             if (!sucesso) throw new AuthException()
-            return this.get(url, tentativas++)
+            return this.get(path, ++tentativas)
         }
         if (response.status == 404) throw new NotFoundException()
         if (response.status >= 500) throw new ServerException()
@@ -39,7 +39,7 @@ export default class RequestApi {
         if (response.status == 401 && tentativas == 0) {
             const sucesso = this.authRepository.atualizarAccessToken()
             if (!sucesso) throw new AuthException()
-            return this.post(url, body, tentativas++)
+            return this.post(path, body, ++tentativas)
         }
         if (response.status == 404) throw new NotFoundException()
         if (response.status >= 500) throw new ServerException()
