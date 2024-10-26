@@ -1,10 +1,13 @@
+import stat
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractBaseUser, AnonymousUser
 from django.http.request import HttpRequest
 from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db.models.manager import BaseManager
+from typing import Union
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -18,7 +21,7 @@ from core.services.mail_service import MailService
 class IndexView(LoginRequiredMixin, View):
     permission_classes = [IsAuthenticated]
 
-    def buscar_notificacoes_sistemas(self, selecionados, pagina, status):
+    def buscar_notificacoes_sistemas(self, selecionados: list, pagina: int, status: str,):
         objetos = []
         if len(selecionados) == 0:
             objetos = Notificacao.objects.all().order_by("-id")
@@ -34,8 +37,8 @@ class IndexView(LoginRequiredMixin, View):
             ).order_by("-id")
 
         if status != "" and status != "0":
-            status = int(status)
-            objetos = objetos.filter(status__status=status)
+            status_cast = int(status)
+            objetos = objetos.filter(status__status=status_cast)
 
         if status == 1:
             objetos = objetos.exclude(
@@ -45,7 +48,7 @@ class IndexView(LoginRequiredMixin, View):
         paginator = Paginator(objetos, 20)
         return paginator.get_page(pagina)
 
-    def formatar_sistemas_args(self, selecionados):
+    def formatar_sistemas_args(self, selecionados: list):
         argumento = ""
         for selecionado in selecionados:
             argumento += f"&sistema={selecionado}"
@@ -56,8 +59,8 @@ class IndexView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest):
         args = request.GET
-        selecionados = args.getlist("sistema")
-        pagina = request.GET.get("page")
+        selecionados = args.getlist("sistema", None)
+        pagina = int(request.GET.get("page", '1'))
         status = request.GET.get("status", "")
         selecionados = list(map(lambda pk: int(pk), selecionados))
 
@@ -83,16 +86,47 @@ class IndexView(LoginRequiredMixin, View):
 class NotificacoesApiView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        notificacoes = Notificacao.objects.all()
+    def get(self, request: HttpRequest):
+        status_arg = request.GET.get('status', '')
+        notificacoes = self.carregar_notificacoes(status_arg=status_arg)
         serializer = NotificacaoSerializer(notificacoes, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+    
+    def carregar_notificacoes(self, status_arg: str = '',) -> BaseManager[Notificacao]:
+        notificacoes = Notificacao.objects.all()
+        if status_arg == '':
+            return notificacoes
+        notificacoes = self.filtrar_status(notificacoes=notificacoes, status_arg=status_arg,)
+        return notificacoes
+        
+    
+    def filtrar_status(self, notificacoes: BaseManager[Notificacao], status_arg: str):
+        if status_arg not in ['1','2','3','4']:
+            return notificacoes
+        
+        status = int(status_arg)
+        if status == StatusNotificacao.RECEBIDO:
+            notificacoes = notificacoes.filter(
+                status__status=StatusNotificacao.RECEBIDO
+            ).exclude(
+                Q(status__status=StatusNotificacao.ERRO) | 
+                Q(status__status=StatusNotificacao.ENVIADO) | 
+                Q(status__status=StatusNotificacao.CALLBACK),
+            )
+            return notificacoes
+        if status == StatusNotificacao.ERRO:
+            notificacoes = notificacoes.filter(Q(status__status=StatusNotificacao.ERRO)).exclude(Q(status__status=StatusNotificacao.ENVIADO))
+            return notificacoes
+        if status == StatusNotificacao.ENVIADO:
+            notificacoes = notificacoes.filter(Q(status__status=StatusNotificacao.ENVIADO))
+            return notificacoes
+        return notificacoes
     
 
 class SistemasApiView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: HttpRequest):
         sistemas = User.objects.filter(
             is_staff=False,
             is_superuser=False,
@@ -104,17 +138,17 @@ class SistemasApiView(APIView):
 class NotificarApiView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: HttpRequest):
         return redirect("/")
 
     def registrar_notificacao(
         self,
-        sistema: User,
+        sistema: Union[AbstractBaseUser, AnonymousUser, User],
         destinatarios: str,
         assunto: str,
         conteudo: str,
         eh_html: bool,
-    ) -> Notificacao:
+    ) -> Notificacao:        
         notificacao = Notificacao.objects.create(
             destinatarios=destinatarios,
             assunto=assunto,
@@ -128,9 +162,9 @@ class NotificarApiView(APIView):
         )
         return notificacao
 
-    def post(self, request):
+    def post(self, request: HttpRequest):
         sistema = request.user
-        dados = request.data
+        dados = request.data # type: ignore
         destinatarios = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
@@ -162,7 +196,7 @@ class NotificarApiView(APIView):
 class ApresentarNotificacaoView(LoginRequiredMixin, View):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, pk):
+    def get(self, request: HttpRequest, pk: int):
         notificacoes_query = Notificacao.objects.filter(pk=pk)  #  type: ignore
         if not notificacoes_query.exists():
             return redirect("index")
