@@ -1,3 +1,28 @@
+<script setup>
+import { useCarregandoStore } from '@/stores/carregando';
+import { useNotificacaoStore } from '@/stores/NotificacaoStore';
+
+const notificacaoStore = useNotificacaoStore()
+const carregandoStore = useCarregandoStore()
+
+async function carregarNotificacoes(status) {
+  console.log('carregarNotificacoes')
+  console.log(status)
+  carregandoStore.alterarStatus(true)
+  notificacaoStore.statusSelecionado = status
+  console.log('status: ' +notificacaoStore.statusSelecionado.value)
+
+  try {
+      await notificacaoStore.carregarLista()
+  } catch (erro) {
+      if (erro instanceof AuthException) router.push('/auth')
+      if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
+  } finally {
+    carregandoStore.alterarStatus(false)
+  }
+}
+</script>
+
 <template>
   <nav class="uk-navbar-container primary-color">
     <div class="uk-container">
@@ -23,10 +48,10 @@
   </nav>
   <div class="primary-color-light subnav">
     <ul class="uk-flex-center" uk-tab>
-      <li class="uk-active"><a href="#">Últimos envios</a></li>
-      <li><a href="#">Aguardando</a></li>
-      <li><a href="#">Sucesso</a></li>
-      <li><a href="#">Erro</a></li>
+      <li class="uk-active"><a @click="carregarNotificacoes('')">Últimos envios</a></li>
+      <li><a @click="carregarNotificacoes('1')">Aguardando</a></li>
+      <li><a @click="carregarNotificacoes('2')">Sucesso</a></li>
+      <li><a @click="carregarNotificacoes('3')">Erro</a></li>
     </ul>
   </div>
 </template>

@@ -4,15 +4,16 @@ import NotificacaoItem from './NotificacaoItem.vue'
 import { useNotificacaoStore } from '@/stores/NotificacaoStore'
 import { onMounted, ref } from 'vue'
 import { AuthException, ServerException } from '@/exception/CustomExceptions'
+import { useCarregandoStore } from '@/stores/carregando'
 
 const notificacaoStore = useNotificacaoStore()
-let carregando = ref(false)
+const carregandoStore = useCarregandoStore()
 let haMaisNotificacoes = ref(true)
 
 const router = useRouter()
 
 async function carregarNotificacoes() {
-    carregando.value = true;
+    carregandoStore.alterarStatus(true)
     const quantidadeAtual = notificacaoStore.notificacoes.length
 
     try {
@@ -23,21 +24,21 @@ async function carregarNotificacoes() {
         if (erro instanceof AuthException) router.push('/auth')
         if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
     } finally {
-        carregando.value = false;
+        carregandoStore.alterarStatus(false);
     }
 
 }
 
 function mostrarCarregando() {
-    return carregando.value && notificacaoStore.notificacoes.length === 0;
+    return carregandoStore.estaCarregando() && notificacaoStore.notificacoes.length === 0;
 }
 
 function mostrarContainerNotificacoes() {
-    return !carregando.value || notificacaoStore.notificacoes.length > 0;
+    return !carregandoStore.estaCarregando() || notificacaoStore.notificacoes.length > 0;
 }
 
 function mostrarBotaoCarregarMais() {
-    return !carregando.value && haMaisNotificacoes && notificacaoStore.notificacoes.length > 0;
+    return !carregandoStore.estaCarregando() && haMaisNotificacoes && notificacaoStore.notificacoes.length > 0;
 }
 
 onMounted(() => { if (notificacaoStore.notificacoes.length == 0) carregarNotificacoes() })

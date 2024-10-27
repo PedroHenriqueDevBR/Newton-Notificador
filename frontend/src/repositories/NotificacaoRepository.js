@@ -5,8 +5,33 @@ import { AuthException, ServerException } from '@/exception/CustomExceptions'
 class NotificacaoRepository {
     constructor() { this.requester = new RequestApi() }
 
-    async buscarNotificacoes() {
-        const url = '/api/v1/notificacoes'
+    formatarQueryNotificacoes(lista_sistema = [], status = '') {
+        let query = ''
+        let primeiro = true
+        if (lista_sistema.length > 0){
+            for (sistema in lista_sistema) {
+                if (primeiro) {
+                    query = query + '?sistema=' + sistema
+                    primeiro = false
+                    continue
+                }
+                query = query + '&sistema=' + sistema
+            }
+        }
+
+        if (status != '' && primeiro) {
+            query = query + '?status=' + status
+            primeiro = false
+        } else if (status != '') {
+            query = query + '&status=' + status
+        }
+
+        return query
+    }
+
+    async buscarNotificacoes(lista_sistema = [], status = '') {
+        const query = this.formatarQueryNotificacoes(lista_sistema, status)
+        const url = '/api/v1/notificacoes' + query
         try {
             const dados = await this.requester.get(url)
             const notificacoes = []

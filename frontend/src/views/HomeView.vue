@@ -21,7 +21,7 @@ usuarioLogado()
   <NavBar />
 
   <main class="uk-container">
-    <div uk-grid class="uk-grid-divider uk-child-width-expand@s">
+    <div uk-grid>
       <div class="uk-width-1-3@m">
         <NotificacaoOpcoes />
       </div>
