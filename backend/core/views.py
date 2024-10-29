@@ -1,5 +1,3 @@
-import stat
-from tracemalloc import stop
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AbstractBaseUser, AnonymousUser
 from django.http.request import HttpRequest
@@ -13,7 +11,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
+from core.utils.paginacao import LimitePaginacao
 from core.serializers.notificacao_serializers import NotificacaoSerializer, SistemaSerializer
 from core.models import Notificacao, StatusNotificacao
 from core.services.mail_service import MailService
@@ -84,16 +84,17 @@ class IndexView(LoginRequiredMixin, View):
         return render(request, template_name, context)
 
 
-class NotificacoesApiView(APIView):
+class NotificacoesApiView(APIView, LimitePaginacao):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: HttpRequest):
         status_arg = request.GET.get('status', '')
         sistemas_arg = request.GET.getlist('sistema', [])
         notificacoes = self.carregar_notificacoes(status_arg=status_arg, sistemas_arg=sistemas_arg,)
-        serializer = NotificacaoSerializer(notificacoes, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-    
+        resultado = self.paginate_queryset(notificacoes, request, view=self)
+        serializer = NotificacaoSerializer(resultado, many=True)
+        return self.get_paginated_response(data=serializer.data)
+
     def carregar_notificacoes(
             self,
             status_arg: str = '',

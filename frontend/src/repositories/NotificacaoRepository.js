@@ -5,9 +5,10 @@ import { AuthException, ServerException } from '@/exception/CustomExceptions'
 class NotificacaoRepository {
     constructor() { this.requester = new RequestApi() }
 
-    formatarQueryNotificacoes(lista_sistema = [], status = '') {
+    formatarQueryNotificacoes(lista_sistema = [], status = '', pagina) {
         let query = ''
         let primeiro = true
+
         if (lista_sistema.length > 0){
             for (sistema in lista_sistema) {
                 if (primeiro) {
@@ -26,21 +27,22 @@ class NotificacaoRepository {
             query = query + '&status=' + status
         }
 
+        if (pagina != '' && pagina != 0 && pagina != 1 && primeiro) {
+            query = query + '?page=' + pagina
+            primeiro = false
+        } else if (pagina != '' && pagina != 0 && pagina != 1) {
+            query = query + '&page=' + pagina
+        }
+
         return query
     }
 
-    async buscarNotificacoes(lista_sistema = [], status = '') {
-        const query = this.formatarQueryNotificacoes(lista_sistema, status)
+    async buscarNotificacoes(lista_sistema = [], status = '', pagina='') {
+        const query = this.formatarQueryNotificacoes(lista_sistema, status, pagina)
         const url = '/api/v1/notificacoes' + query
+        console.log(url)
         try {
-            const dados = await this.requester.get(url)
-            const notificacoes = []
-            for (const dado of dados) {
-                const lista_status = []
-                for (const item of dado.status) lista_status.push(item.get_status_display);
-                notificacoes.push(new Notificacao(dado.id, dado.assunto, dado.conteudo, dado.sistema.first_name, lista_status))
-            }
-            return notificacoes
+            return await this.requester.get(url)
         }
         catch (erro) {
             if (erro instanceof AuthException) throw new AuthException()

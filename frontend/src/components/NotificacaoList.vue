@@ -8,18 +8,14 @@ import { useCarregandoStore } from '@/stores/carregando'
 
 const notificacaoStore = useNotificacaoStore()
 const carregandoStore = useCarregandoStore()
-let haMaisNotificacoes = ref(true)
 
 const router = useRouter()
 
 async function carregarNotificacoes() {
     carregandoStore.alterarStatus(true)
-    const quantidadeAtual = notificacaoStore.notificacoes.length
 
     try {
         await notificacaoStore.carregarLista()
-        const novaQuantidade = notificacaoStore.notificacoes.length
-        if (quantidadeAtual == novaQuantidade) haMaisNotificacoes.value = false
     } catch (erro) {
         if (erro instanceof AuthException) router.push('/auth')
         if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
@@ -38,7 +34,7 @@ function mostrarContainerNotificacoes() {
 }
 
 function mostrarBotaoCarregarMais() {
-    return !carregandoStore.estaCarregando() && haMaisNotificacoes && notificacaoStore.notificacoes.length > 0;
+    return !carregandoStore.estaCarregando() && notificacaoStore.limite == false && notificacaoStore.notificacoes.length > 0
 }
 
 onMounted(() => { if (notificacaoStore.notificacoes.length == 0) carregarNotificacoes() })

@@ -6,11 +6,8 @@ const notificacaoStore = useNotificacaoStore()
 const carregandoStore = useCarregandoStore()
 
 async function carregarNotificacoes(status) {
-  console.log('carregarNotificacoes')
-  console.log(status)
   carregandoStore.alterarStatus(true)
   notificacaoStore.statusSelecionado = status
-  console.log('status: ' +notificacaoStore.statusSelecionado.value)
 
   try {
       await notificacaoStore.carregarLista()
