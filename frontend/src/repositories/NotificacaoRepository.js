@@ -5,19 +5,17 @@ import { AuthException, ServerException } from '@/exception/CustomExceptions'
 class NotificacaoRepository {
     constructor() { this.requester = new RequestApi() }
 
-    formatarQueryNotificacoes(lista_sistema = [], status = '', pagina) {
+    formatarQueryNotificacoes(listaSistema = [], status = '', pagina) {
         let query = ''
         let primeiro = true
 
-        if (lista_sistema.length > 0){
-            for (sistema in lista_sistema) {
-                if (primeiro) {
-                    query = query + '?sistema=' + sistema
-                    primeiro = false
-                    continue
-                }
-                query = query + '&sistema=' + sistema
+        for (const sistema of listaSistema) {
+            if (primeiro) {
+                query = query + '?sistema=' + sistema
+                primeiro = false
+                continue
             }
+            query = query + '&sistema=' + sistema
         }
 
         if (status != '' && primeiro) {
@@ -37,10 +35,11 @@ class NotificacaoRepository {
         return query
     }
 
-    async buscarNotificacoes(lista_sistema = [], status = '', pagina='') {
-        const query = this.formatarQueryNotificacoes(lista_sistema, status, pagina)
+    async buscarNotificacoes(listaSistema = [], status = '', pagina='') {
+        const query = this.formatarQueryNotificacoes(listaSistema, status, pagina)
         const url = '/api/v1/notificacoes' + query
         console.log(url)
+        
         try {
             return await this.requester.get(url)
         }

@@ -10,7 +10,7 @@ defineProps({
 
 <template>
   <div class="uk-card uk-card-body uk-background-muted uk-card-hover uk-padding-small uk-margin-small">
-    <dt>{{ notificacao.titulo }}</dt>
+    <dt>{{ notificacao.sistema }} - {{ notificacao.titulo }}</dt>
     <dd v-html="notificacao.descricao"></dd>
     <span v-for="status of notificacao.lista_status" :key="status"
       :class="['uk-badge uk-margin-small-right', status]">{{

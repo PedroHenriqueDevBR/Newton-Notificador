@@ -11,13 +11,10 @@ export const useNotificacaoStore = defineStore('NotificacoesStore', () => {
     const statusSelecionado = ref('')
     let pagina = 1
     let limite = ref(false)
+    let selecionados = []
 
     function adicionar(notificacao) {
         notificacoes.value.push(notificacao)
-    }
-
-    function selecionarStatus(status){
-        statusSelecionado = status
     }
 
     function extrairNotificacoes(results) {
@@ -36,18 +33,43 @@ export const useNotificacaoStore = defineStore('NotificacoesStore', () => {
         }
     }
 
-    async function carregarLista() {
-        const lista_sistemas = []
-        if (ultimoStatus.value != statusSelecionado.value) {
-            notificacoes.value = []
-            pagina = 1
-            limite.value = false
+    function formatarSelecionados(sistemas) {
+        // Se o tamanho das listas forem diferentes as variaveis devem ser reiniciadas
+        if (selecionados.length !== sistemas.length) {
+            if (selecionados.length > 0 && sistemas.length === 0) return selecionados
+            selecionados = sistemas
+            restaurarVariaveis()
+            return sistemas
         }
+
+        // verifica se as listas são iguais, se nao reinicia as variaveis
+        for (let i = 0; i < sistemas.length; i++) {
+            if (sistemas[i] !== selecionados[i]) {
+                selecionados = sistemas
+                restaurarVariaveis()
+                return sistemas
+            }
+        }
+   
+        return selecionados
+    }
+
+    function restaurarVariaveis() {
+        notificacoes.value = []
+        pagina = 1
+        limite.value = false
+    }
+
+    async function carregarLista(listaSistemas = []) {
+        if (ultimoStatus.value != statusSelecionado.value) restaurarVariaveis()
+        const sistemas = formatarSelecionados(listaSistemas)
         if (limite.value) return []
+
+        console.log(sistemas)
 
         try {
             const notificacoesResponse = await repository.buscarNotificacoes(
-                lista_sistemas, 
+                sistemas, 
                 statusSelecionado.value,
                 pagina,
             )
