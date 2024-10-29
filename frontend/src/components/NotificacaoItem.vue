@@ -13,8 +13,8 @@ defineProps({
     <dt>{{ notificacao.sistema }} - {{ notificacao.titulo }}</dt>
     <dd v-html="notificacao.descricao"></dd>
     <span v-for="status of notificacao.lista_status" :key="status"
-      :class="['uk-badge uk-margin-small-right', status]">{{
-        status }}</span>
+      :class="['uk-badge uk-margin-small-right', status]">
+      {{ status }}</span>
   </div>
 </template>
 

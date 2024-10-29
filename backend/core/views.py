@@ -132,6 +132,19 @@ class NotificacoesApiView(APIView, LimitePaginacao):
             notificacoes = notificacoes.filter(Q(status__status=StatusNotificacao.ENVIADO))
             return notificacoes
         return notificacoes
+
+
+class DetalhesNotificacaoApiView(APIView, LimitePaginacao):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: HttpRequest, pk: int):
+        notificacao_query = Notificacao.objects.filter(pk=pk)
+        if not notificacao_query.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        notificacao = notificacao_query[0]
+        serializer = NotificacaoSerializer(notificacao)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
     
 
 class SistemasApiView(APIView):

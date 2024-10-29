@@ -65,8 +65,6 @@ export const useNotificacaoStore = defineStore('NotificacoesStore', () => {
         const sistemas = formatarSelecionados(listaSistemas)
         if (limite.value) return []
 
-        console.log(sistemas)
-
         try {
             const notificacoesResponse = await repository.buscarNotificacoes(
                 sistemas, 
@@ -84,5 +82,25 @@ export const useNotificacaoStore = defineStore('NotificacoesStore', () => {
         return []
     }
 
-    return { notificacoes, adicionar, carregarLista, statusSelecionado, limite }
+    async function notificacaoPorID(id) {
+        try {
+            const response = await repository.buscarNotificacaoPorID(id)
+            const lista_status = []
+            for (const item of response.status) lista_status.push(item.get_status_display);
+            return new Notificacao(
+                response.id, 
+                response.assunto, 
+                response.conteudo, 
+                response.sistema.first_name,
+                lista_status,
+                response.destinatarios,
+            )
+        } catch (erro) {
+            if (erro instanceof AuthException) throw new AuthException()
+            if (erro instanceof ServerException) throw new ServerException()
+        }
+        return []
+    }
+
+    return { notificacoes, adicionar, carregarLista, statusSelecionado, limite, notificacaoPorID }
 })

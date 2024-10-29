@@ -56,7 +56,7 @@ onMounted(() => { if (notificacaoStore.notificacoes.length == 0) carregarNotific
             </button>
         </div>
         <dl class="uk-description-list">
-            <RouterLink to="detalhes" class="remove-decoration" v-for="notificacao in notificacaoStore.notificacoes"
+            <RouterLink :to="{path: 'detalhes/' + notificacao.id}" class="remove-decoration" v-for="notificacao in notificacaoStore.notificacoes"
                 :key="notificacao.id">
                 <NotificacaoItem :notificacao="notificacao" />
             </RouterLink>

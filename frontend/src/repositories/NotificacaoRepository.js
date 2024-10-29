@@ -38,7 +38,20 @@ class NotificacaoRepository {
     async buscarNotificacoes(listaSistema = [], status = '', pagina='') {
         const query = this.formatarQueryNotificacoes(listaSistema, status, pagina)
         const url = '/api/v1/notificacoes' + query
-        console.log(url)
+
+        try {
+            return await this.requester.get(url)
+        }
+        catch (erro) {
+            if (erro instanceof AuthException) throw new AuthException()
+            if (erro instanceof ServerException) throw new ServerException()
+        }
+
+        return []
+    }
+
+    async buscarNotificacaoPorID(id) {
+        const url = '/api/v1/notificacoes/' + id
         
         try {
             return await this.requester.get(url)

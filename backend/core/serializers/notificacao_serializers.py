@@ -24,6 +24,7 @@ class StatusSerializer(serializers.ModelSerializer):
             "registrado_em",
             "status",
             "get_status_display",
+            "detalhes"
         ]
 
 
