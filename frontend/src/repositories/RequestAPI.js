@@ -1,10 +1,10 @@
-import { AuthException, NotFoundException, ServerException } from "@/exception/CustomExceptions";
-import AuthRepository from "./AuthRepository";
+import { AuthException, NotFoundException, ServerException } from "@/exception/CustomExceptions"
+import AuthRepository from "./AuthRepository"
 
 export default class RequestApi {
 
     constructor() {
-        this.urlBase = 'http://localhost:8000'
+        this.urlBase = import.meta.env.VITE_APP_API_URL
         this.authRepository = new AuthRepository()
     }
 

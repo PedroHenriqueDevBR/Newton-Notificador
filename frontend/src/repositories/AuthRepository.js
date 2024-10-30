@@ -3,7 +3,7 @@ import { AuthException, ServerException, NotFoundException } from "@/exception/C
 class AuthRepository {
 
     constructor() {
-        this.urlBase = 'http://localhost:8000'
+        this.urlBase = import.meta.env.VITE_APP_API_URL
         this.access_key = 'ACCESS_KEY'
         this.refresh_key = 'REFRESH_KEY'
     }
