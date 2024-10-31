@@ -63,6 +63,26 @@ class NotificacaoRepository {
 
         return []
     }
+
+    async notificacaoInstantanea(notificacao) {
+        const url = '/api/v1/notificar'
+        const body = {
+            "destinatarios": notificacao.destinatarioss,
+            "assunto": notificacao.titulo,
+            "conteudo": notificacao.descricao,
+            "eh_html": true
+        }
+        
+        try {
+            return await this.requester.post(url, body)
+        }
+        catch (erro) {
+            if (erro instanceof AuthException) throw new AuthException()
+            if (erro instanceof ServerException) throw new ServerException()
+        }
+
+        return []
+    }
 }
 
 export default NotificacaoRepository
