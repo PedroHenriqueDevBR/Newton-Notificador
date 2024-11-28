@@ -31,10 +31,24 @@
         <p style="margin: 0;"><b>Para:</b> {{ notificacao.destinatarios }}</p>
     
         <hr>
-    
-        <div>{{ notificacao.conteudo|safe }}</div>
+        
+        <div id="conteudo-container"></div>
     </div>
         
 </div>
+
+<script>
+    class ConteudoCustomizado extends HTMLElement {
+        constructor() {
+            super();
+            // Criar Shadow DOM para isolar estilos
+            const shadow = this.attachShadow({ mode: 'open' });
+            // Adicionar o conteúdo dentro do Shadow DOM
+            shadow.innerHTML = `{{ notificacao.conteudo|safe }}`;
+        }
+    }
+    customElements.define('conteudo-customizado', ConteudoCustomizado);
+    document.getElementById('conteudo-container').appendChild(new ConteudoCustomizado());
+</script>
 
 {% endblock body %}
