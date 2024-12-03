@@ -1,8 +1,26 @@
 <script setup>
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { useNotificacaoInstantaneaStore } from '@/stores/NotificacaoInstantaneaStore';
 
 import { RouterLink } from 'vue-router'
+import { onMounted } from 'vue';
+
+const notificacaoStore = useNotificacaoInstantaneaStore()
+
+async function carregarDados() {
+    try {
+        await notificacaoStore.buscarSistemas()
+    } catch (erro) {
+        if (erro instanceof AuthException) router.push('/auth')
+        if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
+    } finally {
+        carregandoStore.alterarStatus(false);
+    }
+}
+
+onMounted(() => { carregarDados() })
+
 </script>
 
 <template>
@@ -42,6 +60,15 @@ import { RouterLink } from 'vue-router'
               type="text"
               placeholder="Título do envio"
             />
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="form-stacked-text">Sistema</label>
+          <div class="uk-form-controls">
+            <select class="uk-select" aria-label="Select">
+              <option v-for="sistema of notificacaoStore.sistemas" :value="sistema.id">{{ sistema.nome }}</option>
+            </select>
           </div>
         </div>
 
