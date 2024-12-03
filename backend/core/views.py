@@ -132,7 +132,7 @@ class NotificacoesApiView(APIView, LimitePaginacao):
             notificacoes = notificacoes.filter(Q(status__status=StatusNotificacao.ENVIADO))
             return notificacoes
         return notificacoes
-
+    
 
 class DetalhesNotificacaoApiView(APIView, LimitePaginacao):
     permission_classes = [IsAuthenticated]
@@ -207,14 +207,43 @@ class NotificarApiView(APIView):
 
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-        # try:
-        # except:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def dados_validos(self, destinatarios):
         if len(destinatarios) == 0:
             return False
         return True
+
+
+class NotificacaoInstataneaApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request: HttpRequest):
+        dados = request.data # type: ignore
+        sistema_pk = dados.get("sistema", 0)
+        sistemas_query = User.objects.filter(pk=sistema_pk)
+        if not sistemas_query.exists():
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        destinatarios = dados.get("destinatarios", "")
+        assunto = dados.get("assunto", "Assunto não definido")
+        conteudo = dados.get("conteudo", "")
+        eh_html = dados.get("eh_html", False)
+        sistema = sistemas_query[0]
+
+        notificar_view = NotificarApiView()
+        if notificar_view.dados_validos(destinatarios=destinatarios):
+            service = MailService()
+            notificacao = notificar_view.registrar_notificacao(
+                sistema=sistema,
+                destinatarios=destinatarios,
+                assunto=assunto,
+                conteudo=conteudo,
+                eh_html=eh_html,
+            )
+            service.notificar(notificacao=notificacao)
+
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ApresentarNotificacaoView(LoginRequiredMixin, View):

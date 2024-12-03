@@ -5,6 +5,7 @@ from core.views import (
     ApresentarNotificacaoView,
     DetalhesNotificacaoApiView,
     IndexView,
+    NotificacaoInstataneaApiView,
     NotificarApiView,
     NotificacoesApiView,
     SistemasApiView,
@@ -38,6 +39,11 @@ urlpatterns = [
         "api/v1/notificar",
         NotificarApiView.as_view(),
         name="notificar",
+    ),
+    path(
+        "api/v1/notificar/instantanea",
+        NotificacaoInstataneaApiView.as_view(),
+        name="notificar_instantanea",
     ),
     path(
         "api/v1/notificacoes",
