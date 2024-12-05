@@ -100,7 +100,7 @@ class NotificacoesApiView(APIView, LimitePaginacao):
             status_arg: str = '',
             sistemas_arg: list = [],
     ) -> BaseManager[Notificacao]:
-        notificacoes = Notificacao.objects.all()
+        notificacoes = Notificacao.objects.all().order_by('-id')
         if status_arg != '':
             notificacoes = self.filtrar_status(notificacoes=notificacoes, status_arg=status_arg,)
         if len(sistemas_arg) != 0:
@@ -222,7 +222,7 @@ class NotificacaoInstataneaApiView(APIView):
         sistema_pk = dados.get("sistema", 0)
         sistemas_query = User.objects.filter(pk=sistema_pk)
         if not sistemas_query.exists():
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         destinatarios = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")

@@ -64,13 +64,13 @@ class NotificacaoRepository {
         return []
     }
 
-    async notificacaoInstantanea(notificacao) {
-        const url = '/api/v1/notificar'
+    async notificacaoInstantanea(notificacao, sistema) {
+        const url = '/api/v1/notificar/instantanea'
         const body = {
-            "destinatarios": notificacao.destinatarioss,
+            "sistema": sistema,
+            "destinatarios": notificacao.destinatarios,
             "assunto": notificacao.titulo,
-            "conteudo": notificacao.descricao,
-            "eh_html": true
+            "conteudo": notificacao.descricao
         }
         
         try {
