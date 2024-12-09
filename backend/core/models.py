@@ -2,12 +2,21 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from provedor.models import Provedor
+
 
 class Notificacao(models.Model):
     destinatarios = models.CharField(max_length=1500)
     assunto = models.CharField(max_length=2500)
     conteudo = models.TextField(max_length=5000)
     eh_html = models.BooleanField(default=False)
+    provedor = models.ForeignKey(
+        Provedor,
+        on_delete=models.SET_NULL,
+        related_name="sms_enviado",
+        null=True,
+        blank=True,
+    )
     sistema = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
