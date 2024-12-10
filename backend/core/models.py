@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from provedor.models import ProvedorEmail, ProvedorSMS
+
 
 class Notificacao(models.Model):
     destinatarios = models.CharField(max_length=1500)
@@ -23,6 +25,40 @@ class Notificacao(models.Model):
         verbose_name_plural = "Notificacoes"
 
 
+class NotificacaoEmail(models.Model):
+    provedor = models.ForeignKey(
+        ProvedorEmail,
+        on_delete=models.SET_NULL,
+        related_name="notificacoes_email",
+        null=True,
+        blank=True,
+    )
+    notificacao = models.ForeignKey(
+        Notificacao,
+        on_delete=models.SET_NULL,
+        related_name="emails_vinculados",
+        null=True,
+        blank=True,
+    )
+
+
+class NotificacaoSMS(models.Model):
+    provedor = models.ForeignKey(
+        ProvedorSMS,
+        on_delete=models.SET_NULL,
+        related_name="notificacoes_sms",
+        null=True,
+        blank=True,
+    )
+    notificacao = models.ForeignKey(
+        Notificacao,
+        on_delete=models.SET_NULL,
+        related_name="sms_vinculados",
+        null=True,
+        blank=True,
+    )
+
+
 class StatusNotificacao(models.Model):
     RECEBIDO = 1
     ENVIADO = 2
@@ -36,6 +72,7 @@ class StatusNotificacao(models.Model):
         (CALLBACK, "Callback"),
     ]
 
+    titulo = models.CharField(max_length=500, default='-')
     registrado_em = models.DateTimeField()
     status = models.IntegerField(
         choices=STATUS,

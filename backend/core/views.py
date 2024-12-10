@@ -11,10 +11,14 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
 
+from core.services.notificacor.notificador_service import NotificadorService
+from provedor.models import ProvedorEmail, ProvedorSMS
 from core.utils.paginacao import LimitePaginacao
-from core.serializers.notificacao_serializers import NotificacaoSerializer, SistemaSerializer
+from core.serializers.notificacao_serializers import (
+    NotificacaoSerializer,
+    SistemaSerializer,
+)
 from core.models import Notificacao, StatusNotificacao
 from core.services.mail_service import MailService
 
@@ -22,7 +26,12 @@ from core.services.mail_service import MailService
 class IndexView(LoginRequiredMixin, View):
     permission_classes = [IsAuthenticated]
 
-    def buscar_notificacoes_sistemas(self, selecionados: list, pagina: int, status: str,):
+    def buscar_notificacoes_sistemas(
+        self,
+        selecionados: list,
+        pagina: int,
+        status: str,
+    ):
         objetos = []
         if len(selecionados) == 0:
             objetos = Notificacao.objects.all().order_by("-id")
@@ -61,7 +70,7 @@ class IndexView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest):
         args = request.GET
         selecionados = args.getlist("sistema", None)
-        pagina = int(request.GET.get("page", '1'))
+        pagina = int(request.GET.get("page", "1"))
         status = request.GET.get("status", "")
         selecionados = list(map(lambda pk: int(pk), selecionados))
 
@@ -88,51 +97,66 @@ class NotificacoesApiView(APIView, LimitePaginacao):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: HttpRequest):
-        status_arg = request.GET.get('status', '')
-        sistemas_arg = request.GET.getlist('sistema', [])
-        notificacoes = self.carregar_notificacoes(status_arg=status_arg, sistemas_arg=sistemas_arg,)
+        status_arg = request.GET.get("status", "")
+        sistemas_arg = request.GET.getlist("sistema", [])
+        notificacoes = self.carregar_notificacoes(
+            status_arg=status_arg,
+            sistemas_arg=sistemas_arg,
+        )
         resultado = self.paginate_queryset(notificacoes, request, view=self)
         serializer = NotificacaoSerializer(resultado, many=True)
         return self.get_paginated_response(data=serializer.data)
 
     def carregar_notificacoes(
-            self,
-            status_arg: str = '',
-            sistemas_arg: list = [],
+        self,
+        status_arg: str = "",
+        sistemas_arg: list = [],
     ) -> BaseManager[Notificacao]:
-        notificacoes = Notificacao.objects.all().order_by('-id')
-        if status_arg != '':
-            notificacoes = self.filtrar_status(notificacoes=notificacoes, status_arg=status_arg,)
+        notificacoes = Notificacao.objects.all().order_by("-id")
+        if status_arg != "":
+            notificacoes = self.filtrar_status(
+                notificacoes=notificacoes,
+                status_arg=status_arg,
+            )
         if len(sistemas_arg) != 0:
-            notificacoes = self.filtrar_sistema(notificacoes=notificacoes, sistemas_arg=sistemas_arg,)
+            notificacoes = self.filtrar_sistema(
+                notificacoes=notificacoes,
+                sistemas_arg=sistemas_arg,
+            )
         return notificacoes
-    
-    def filtrar_sistema(self, notificacoes: BaseManager[Notificacao], sistemas_arg: list[int]):
+
+    def filtrar_sistema(
+        self, notificacoes: BaseManager[Notificacao], sistemas_arg: list[int]
+    ):
         sistemas = map(lambda sistema: int(sistema), sistemas_arg)
         return notificacoes.filter(sistema__id__in=sistemas)
-    
+
     def filtrar_status(self, notificacoes: BaseManager[Notificacao], status_arg: str):
-        if status_arg not in ['1','2','3','4']:
+        if status_arg not in ["1", "2", "3", "4"]:
             return notificacoes
-        
+
         status = int(status_arg)
         if status == StatusNotificacao.RECEBIDO:
             notificacoes = notificacoes.filter(
                 status__status=StatusNotificacao.RECEBIDO
             ).exclude(
-                Q(status__status=StatusNotificacao.ERRO) | 
-                Q(status__status=StatusNotificacao.ENVIADO) | 
-                Q(status__status=StatusNotificacao.CALLBACK),
+                Q(status__status=StatusNotificacao.ERRO)
+                | Q(status__status=StatusNotificacao.ENVIADO)
+                | Q(status__status=StatusNotificacao.CALLBACK),
             )
             return notificacoes
         if status == StatusNotificacao.ERRO:
-            notificacoes = notificacoes.filter(Q(status__status=StatusNotificacao.ERRO)).exclude(Q(status__status=StatusNotificacao.ENVIADO))
+            notificacoes = notificacoes.filter(
+                Q(status__status=StatusNotificacao.ERRO)
+            ).exclude(Q(status__status=StatusNotificacao.ENVIADO))
             return notificacoes
         if status == StatusNotificacao.ENVIADO:
-            notificacoes = notificacoes.filter(Q(status__status=StatusNotificacao.ENVIADO))
+            notificacoes = notificacoes.filter(
+                Q(status__status=StatusNotificacao.ENVIADO)
+            )
             return notificacoes
         return notificacoes
-    
+
 
 class DetalhesNotificacaoApiView(APIView, LimitePaginacao):
     permission_classes = [IsAuthenticated]
@@ -141,11 +165,11 @@ class DetalhesNotificacaoApiView(APIView, LimitePaginacao):
         notificacao_query = Notificacao.objects.filter(pk=pk)
         if not notificacao_query.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         notificacao = notificacao_query[0]
         serializer = NotificacaoSerializer(notificacao)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-    
+
 
 class SistemasApiView(APIView):
     permission_classes = [IsAuthenticated]
@@ -171,13 +195,11 @@ class NotificarApiView(APIView):
         destinatarios: str,
         assunto: str,
         conteudo: str,
-        eh_html: bool,
-    ) -> Notificacao:        
+    ) -> Notificacao:
         notificacao = Notificacao.objects.create(
             destinatarios=destinatarios,
             assunto=assunto,
             conteudo=conteudo,
-            eh_html=eh_html,
             sistema=sistema,
         )
         StatusNotificacao.objects.create(
@@ -188,25 +210,113 @@ class NotificarApiView(APIView):
 
     def post(self, request: HttpRequest):
         sistema = request.user
-        dados = request.data # type: ignore
+        dados = request.data  # type: ignore
         destinatarios = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
-        eh_html = dados.get("eh_html", False)
+
+        provedor_email = self.selecionar_provedor_email()
+        if provedor_email is None:
+            return Response(
+                data={"Erro": "Nenhum provedor de email configurado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
         if self.dados_validos(destinatarios=destinatarios):
-            service = MailService()
+            service = NotificadorService()
             notificacao = self.registrar_notificacao(
                 sistema=sistema,
                 destinatarios=destinatarios,
                 assunto=assunto,
                 conteudo=conteudo,
-                eh_html=eh_html,
             )
-            service.notificar(notificacao=notificacao)
+            service.notificar(
+                notificacao=notificacao,
+                provedor_email=provedor_email,
+            )
 
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def selecionar_provedor_email(self):
+        provedores = ProvedorEmail.objects.filter(
+            ativo=True,
+        ).order_by("prioridade")
+
+        if not provedores.exists():
+            return None
+        return provedores[0]
+
+    def dados_validos(self, destinatarios):
+        if len(destinatarios) == 0:
+            return False
+        return True
+    
+
+class NotificarSMSApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: HttpRequest):
+        return redirect("/")
+
+    def registrar_notificacao(
+        self,
+        sistema: Union[AbstractBaseUser, AnonymousUser, User],
+        destinatarios: str,
+        assunto: str,
+        conteudo: str,
+    ) -> Notificacao:
+        notificacao = Notificacao.objects.create(
+            destinatarios=destinatarios,
+            assunto=assunto,
+            conteudo=conteudo,
+            sistema=sistema,
+        )
+        StatusNotificacao.objects.create(
+            notificacao=notificacao,
+            status=StatusNotificacao.RECEBIDO,
+        )
+        return notificacao
+
+    def post(self, request: HttpRequest):
+        sistema = request.user
+        dados = request.data  # type: ignore
+        destinatario = dados.get("destinatarios", "")
+        assunto = dados.get("assunto", "Assunto não definido")
+        conteudo = dados.get("conteudo", "")
+        
+        provedor_sms = self.selecionar_provedor_sms()
+        if provedor_sms is None:
+            return Response(
+                data={"Erro": "Nenhum provedor de SMS configurado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if self.dados_validos(destinatarios=destinatario):
+            service = NotificadorService()
+            notificacao = self.registrar_notificacao(
+                sistema=sistema,
+                destinatarios=destinatario,
+                assunto=assunto,
+                conteudo=conteudo,
+            )
+            service.notificar(
+                notificacao=notificacao,
+                provedor_sms=provedor_sms,
+            )
+
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def selecionar_provedor_sms(self):
+        provedores = ProvedorSMS.objects.filter(
+            ativo=True,
+        ).order_by("prioridade")
+
+        if not provedores.exists():
+            return None
+        return provedores[0]
 
     def dados_validos(self, destinatarios):
         if len(destinatarios) == 0:
@@ -218,7 +328,7 @@ class NotificacaoInstataneaApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: HttpRequest):
-        dados = request.data # type: ignore
+        dados = request.data  # type: ignore
         sistema_pk = dados.get("sistema", 0)
         sistemas_query = User.objects.filter(pk=sistema_pk)
         if not sistemas_query.exists():
@@ -227,7 +337,6 @@ class NotificacaoInstataneaApiView(APIView):
         destinatarios = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
-        eh_html = dados.get("eh_html", False)
         sistema = sistemas_query[0]
 
         notificar_view = NotificarApiView()
@@ -238,7 +347,6 @@ class NotificacaoInstataneaApiView(APIView):
                 destinatarios=destinatarios,
                 assunto=assunto,
                 conteudo=conteudo,
-                eh_html=eh_html,
             )
             service.notificar(notificacao=notificacao)
 
