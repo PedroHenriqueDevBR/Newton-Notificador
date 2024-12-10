@@ -1,29 +1,30 @@
-from django.conf import settings
 import smtplib
 import email.utils
 from email.message import EmailMessage
 import ssl
-from backend.provedor.models import ProvedorEmail
+from provedor.models import ProvedorEmail
 from core.models import Notificacao, StatusNotificacao, DetalheErro
 
 
-class CustomMailBackend:
+class PadraoMailBackend:
     def send_mail(
         self,
         provedor: ProvedorEmail,
         notificacao: Notificacao,
-    ):
-        SENDERNAME = "Não Responda"
-        RECIPIENT = recipient_list
-        SENDER = settings.DEFAULT_FROM_EMAIL
-        USERNAME_SMTP = settings.EMAIL_HOST_USER
-        password_smtp = settings.EMAIL_HOST_PASSWORD
-        HOST = settings.EMAIL_HOST
-        PORT = settings.EMAIL_PORT
-        SUBJECT = subject
-
-        BODY_TEXT = message
-        BODY_HTML = message
+    ) -> bool:
+        # Configuracao de provedor
+        HOST = provedor.host
+        PORT = provedor.numero_porta
+        SENDERNAME = provedor.sender_name
+        SENDER = provedor.sender_email
+        USERNAME_SMTP = provedor.host_user
+        password_smtp = provedor.host_password
+        
+        # Configuracao da notificacao
+        RECIPIENT = notificacao.destinatarios
+        SUBJECT = notificacao.assunto
+        BODY_TEXT = notificacao.conteudo
+        BODY_HTML = notificacao.conteudo
 
         msg = EmailMessage()
         msg["Subject"] = SUBJECT
@@ -58,24 +59,11 @@ class CustomMailBackend:
                 mensagem=mensagem,
             )
             print(mensagem)
+            return False
         else:
             StatusNotificacao.objects.create(
                 notificacao=notificacao,
                 status=StatusNotificacao.ENVIADO,
             )
             print("Notificacao enviada!")
-
-
-class MailService:
-
-    def notificar(
-        self,
-        notificacao: Notificacao,
-    ) -> None:
-        mail_service = CustomMailBackend()
-        mail_service.send_mail(
-            subject=notificacao.assunto,
-            message=notificacao.conteudo,
-            recipient_list=notificacao.destinatarios,
-            notificacao=notificacao,
-        )
+            return True

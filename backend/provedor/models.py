@@ -4,13 +4,14 @@ class Provedor(models.Model):
     PADRAO = 1
     TWILIO = 2
 
-    PROVEDORES = (
+    OPCOES = (
         (PADRAO, 'Padrao'),
         (TWILIO, "Twilio"),
     )
 
-    provedor = models.IntegerField(choices=PROVEDORES, default=TWILIO)
+    opcao = models.IntegerField(choices=OPCOES, default=PADRAO)
     prioridade = models.IntegerField(default=0)
+    ativo = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -22,7 +23,7 @@ class ProvedorSMS(Provedor):
     phone_number = models.CharField(max_length=50)
 
     def __str__(self) -> str:
-        return f"${self.provedor} -> ${self.phone_number}"
+        return f"${self.opcao} -> ${self.phone_number}"
 
 
 class ProvedorEmail(Provedor):
@@ -34,5 +35,9 @@ class ProvedorEmail(Provedor):
     host_password = models.CharField(max_length=250)
     use_tls = models.BooleanField(default=True)
 
+    @property
+    def numero_porta(self):
+        return int(self.port)
+
     def __str__(self) -> str:
-        return f"${self.provedor} -> ${self.host}"
+        return f"${self.opcao} -> ${self.host}"

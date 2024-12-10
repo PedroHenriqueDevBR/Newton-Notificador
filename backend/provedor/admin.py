@@ -5,8 +5,9 @@ from .models import ProvedorEmail, ProvedorSMS
 @admin.register(ProvedorEmail)
 class ProvedorEmailAdmin(admin.ModelAdmin):
     list_display = (
-        "provedor",
+        "opcao",
         "prioridade",
+        "ativo",
         "host",
         "port",
         "sender_name",
@@ -20,8 +21,9 @@ class ProvedorEmailAdmin(admin.ModelAdmin):
 @admin.register(ProvedorSMS)
 class ProvedorSMSAdmin(admin.ModelAdmin):
     list_display = (
-        "provedor",
+        "opcao",
         "prioridade",
+        "ativo",
         "account_id",
         "auth_token",
         "phone_number",

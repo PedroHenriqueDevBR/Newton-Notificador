@@ -8,6 +8,7 @@ from core.views import (
     NotificacaoInstataneaApiView,
     NotificarApiView,
     NotificacoesApiView,
+    NotificarSMSApiView,
     SistemasApiView,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -38,6 +39,11 @@ urlpatterns = [
     path(
         "api/v1/notificar",
         NotificarApiView.as_view(),
+        name="notificar",
+    ),
+    path(
+        "api/v1/notificar/sms",
+        NotificarSMSApiView.as_view(),
         name="notificar",
     ),
     path(
