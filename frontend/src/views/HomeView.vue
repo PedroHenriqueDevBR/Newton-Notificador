@@ -11,9 +11,7 @@ const router = useRouter()
 
 async function usuarioLogado() {
   const logado = await authStore.verificarToken()
-  console.log('logado: ' + logado)
   if (!logado) router.push('/auth');
-  console.log('Usuário logado')
 }
 
 usuarioLogado()
@@ -23,7 +21,7 @@ usuarioLogado()
   <NavBar />
 
   <main class="uk-container">
-    <div uk-grid class="uk-grid-divider uk-child-width-expand@s">
+    <div uk-grid>
       <div class="uk-width-1-3@m">
         <NotificacaoOpcoes />
       </div>

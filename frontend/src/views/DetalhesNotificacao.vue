@@ -1,7 +1,38 @@
-<script setup></script>
+<script setup>
+import { useRoute } from 'vue-router'
+import { useNotificacaoStore } from '@/stores/NotificacaoStore';
+import { onMounted, ref } from 'vue';
+
+const route = useRoute()
+const notificacaoStore = useNotificacaoStore()
+const id = route.params.id
+let notificacao = ref(null)
+
+async function carregarDetalhesNotificacao() {
+  try {
+        const response = await notificacaoStore.notificacaoPorID(id)
+        notificacao.value = response
+    } catch (erro) {
+        if (erro instanceof AuthException) router.push('/auth')
+        if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
+    }
+}
+
+onMounted(() => {
+  carregarDetalhesNotificacao()
+})
+
+</script>
 
 <template>
-  <main class="uk-padding">
+  <div v-if="notificacao == null" class="preencher-pagina">
+      <div class="uk-flex uk-flex-center uk-flex-column uk-flex-middle">  
+        <span uk-icon="icon: refresh; ratio: 2" class="carregando"></span>
+        <p>Carregando...</p>
+      </div>
+    </div>
+  
+  <main v-if="notificacao != null" class="uk-padding">
     <div class="uk-container uk-card uk-card-body uk-background-muted">
       <h1>
         <RouterLink
@@ -9,74 +40,69 @@
           class="uk-margin-small-right"
           uk-icon="icon: arrow-left; ratio: 2"
         ></RouterLink>
-        Título da notificação
+        {{ notificacao.titulo }}
       </h1>
       <hr class="uk-divider-small" />
       <p class="uk-margin-remove">
-        <b>Sistema:</b> Sistema Selecionado |
-        <b>Destinatário:</b> usuario@mail.com
+        <b>Sistema:</b> {{ notificacao.sistema }} |
+        <b>Destinatário:</b> {{ notificacao.destinatarios }}
       </p>
       <b>histórico: </b>
-      <span class="uk-badge uk-margin-small-right aguardando">Aguardando</span>
-      <span class="uk-badge uk-margin-small-right erro">Erro</span>
-      <span class="uk-badge uk-margin-small-right enviado">Enviado</span>
+
+      <span v-for="status of notificacao.lista_status" :key="status"
+      :class="['uk-badge uk-margin-small-right', status]">
+        {{ status }}
+      </span>
       <hr class="uk-divider-small" />
 
       <article class="uk-article">
-        <h1 class="uk-article-title">
-          <a class="uk-link-reset" href="">Heading</a>
-        </h1>
-
-        <p class="uk-article-meta">
-          Written by <a href="#">Super User</a> on 12 April 2012. Posted in
-          <a href="#">Blog</a>
-        </p>
-
-        <p class="uk-text-lead">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip.
-        </p>
-
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
-        </p>
+        <div v-html="notificacao.descricao"></div>
       </article>
 
-      <hr class="uk-divider-icon" />
-
-      <div class="uk-alert-success" uk-alert>
-        <p>Solicitação enviada para o destinatário.</p>
-      </div>
-
-      <div class="uk-alert-danger" uk-alert>
-        <p>Erro: credenciais inválidas.</p>
-      </div>
-
-      <div class="uk-alert-primary" uk-alert>
-        <p>Solicitação de notificação registrada.</p>
-      </div>
     </div>
   </main>
 </template>
 
 <style scoped>
-.aguardando {
+.aguardando,
+.Recebido {
   background-color: #039be5;
 }
 
-.erro {
+.erro,
+.Erro {
   background-color: #d32f2f;
 }
 
-.enviado {
+.enviado,
+.Enviado {
   background-color: #689f38;
+}
+
+@keyframes girar {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.carregando {
+    animation: girar 1s linear infinite;
+}
+
+
+.remove-decoration {
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.preencher-pagina {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>

@@ -1,3 +1,7 @@
 {
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.importFormat": "absolute",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoIndent": true
 }

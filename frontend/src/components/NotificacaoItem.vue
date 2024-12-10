@@ -10,24 +10,26 @@ defineProps({
 
 <template>
   <div class="uk-card uk-card-body uk-background-muted uk-card-hover uk-padding-small uk-margin-small">
-    <dt>{{ notificacao.titulo }}</dt>
-    <dd>{{ notificacao.descricao }}</dd>
-    <span class="uk-badge uk-margin-small-right aguardando">Aguardando</span>
-    <span class="uk-badge uk-margin-small-right erro">Erro</span>
-    <span class="uk-badge uk-margin-small-right enviado">Enviado</span>
+    <dt>{{ notificacao.sistema }} - {{ notificacao.titulo }}</dt>
+    <span v-for="status of notificacao.lista_status" :key="status"
+      :class="['uk-badge uk-margin-small-right', status]">
+      {{ status }}</span>
   </div>
 </template>
 
 <style scoped>
-.aguardando {
+.aguardando,
+.Recebido {
   background-color: #039be5;
 }
 
-.erro {
+.erro,
+.Erro {
   background-color: #d32f2f;
 }
 
-.enviado {
+.enviado,
+.Enviado {
   background-color: #689f38;
 }
 </style>

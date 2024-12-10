@@ -1,34 +1,43 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import NotificacaoItem from './NotificacaoItem.vue'
 import { useNotificacaoStore } from '@/stores/NotificacaoStore'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { AuthException, ServerException } from '@/exception/CustomExceptions'
+import { useCarregandoStore } from '@/stores/carregando'
 
 const notificacaoStore = useNotificacaoStore()
-let paginaAtual = 0
-let carregando = ref(false)
-let haMaisNotificacoes = ref(true)
+const carregandoStore = useCarregandoStore()
+
+const router = useRouter()
 
 async function carregarNotificacoes() {
-    carregando.value = true;
-    const quantidadeAtual = notificacaoStore.notificacoes.length
-    await notificacaoStore.carregarLista(paginaAtual)
-    const novaQuantidade = notificacaoStore.notificacoes.length
-    if (quantidadeAtual == novaQuantidade) haMaisNotificacoes.value = false
-    carregando.value = false;
+    carregandoStore.alterarStatus(true)
+
+    try {
+        await notificacaoStore.carregarLista()
+    } catch (erro) {
+        if (erro instanceof AuthException) router.push('/auth')
+        if (erro instanceof ServerException) alert('Sem conexão com o servidor!')
+    } finally {
+        carregandoStore.alterarStatus(false);
+    }
+
 }
 
 function mostrarCarregando() {
-    return carregando.value && notificacaoStore.notificacoes.length === 0;
+    return carregandoStore.estaCarregando() && notificacaoStore.notificacoes.length === 0;
 }
 
 function mostrarContainerNotificacoes() {
-    return !carregando.value || notificacaoStore.notificacoes.length > 0;
+    return !carregandoStore.estaCarregando() || notificacaoStore.notificacoes.length > 0;
 }
 
 function mostrarBotaoCarregarMais() {
-    return !carregando.value && haMaisNotificacoes && notificacaoStore.notificacoes.length > 0;
+    return !carregandoStore.estaCarregando() && notificacaoStore.limite == false && notificacaoStore.notificacoes.length > 0
 }
+
+onMounted(() => { if (notificacaoStore.notificacoes.length == 0) carregarNotificacoes() })
 </script>
 
 <template>
@@ -47,7 +56,7 @@ function mostrarBotaoCarregarMais() {
             </button>
         </div>
         <dl class="uk-description-list">
-            <RouterLink to="detalhes" class="remove-decoration" v-for="notificacao in notificacaoStore.notificacoes"
+            <RouterLink :to="{path: 'detalhes/' + notificacao.id}" class="remove-decoration" v-for="notificacao in notificacaoStore.notificacoes"
                 :key="notificacao.id">
                 <NotificacaoItem :notificacao="notificacao" />
             </RouterLink>

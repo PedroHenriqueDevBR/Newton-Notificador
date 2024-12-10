@@ -19,7 +19,7 @@ const router = createRouter({
       component: AuthView,
     },
     {
-      path: '/detalhes',
+      path: '/detalhes/:id',
       name: 'detalhes',
       component: DetalhesNotificacao,
     },

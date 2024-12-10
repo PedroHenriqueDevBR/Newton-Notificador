@@ -1,23 +1,29 @@
 import SistemaModel from "@/models/SistemaModel";
+import RequestApi from "./RequestAPI";
+import { AuthException, ServerException } from "@/exception/CustomExceptions";
 
 class SistemaRepository {
-    constructor() { }
+    constructor() {
+        this.requester = new RequestApi()
+    }
 
     async buscarSistemas() {
-        await new Promise(resolve => {
-            setTimeout(() => {
-                console.log('Tempo fake');
-                resolve();
-            }, 500)
-        })
+        const url = '/api/v1/sistemas'
+        try {
+            const dados = await this.requester.get(url)
+            const sistemas = []
+            for (const dado of dados) {
+                sistemas.push(new SistemaModel(dado.id, dado.first_name))
+            }
+            return sistemas
+        }
+        catch (erro) {
+            if (erro instanceof AuthException) throw new AuthException()
+            if (erro instanceof ServerException) throw new ServerException()
+        }
 
-        return [
-            new SistemaModel(1, 'Sistema 01'),
-            new SistemaModel(2, 'Sistema 02'),
-            new SistemaModel(3, 'Sistema 03'),
-            new SistemaModel(4, 'Sistema 04'),
-            new SistemaModel(5, 'Sistema 05'),
-        ]
+        return []
+
     }
 }
 

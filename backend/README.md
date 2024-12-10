@@ -51,13 +51,13 @@ DEBUG=True
 APP_HTTP_PORT=80
 APP_HTTPS_PORT=443
 
-# Mail
-EMAIL_HOST=
-EMAIL_PORT=
-DEFAULT_FROM_EMAIL=
-EMAIL_HOST_USER=
-EMAIL_HOST_PASSWORD=
-EMAIL_USE_TLS=True
+# Mail (Configuração feita pelo Django Admin)
+EMAIL_HOST= # / Depreciado
+EMAIL_PORT= # / Depreciado
+DEFAULT_FROM_EMAIL= # / Depreciado
+EMAIL_HOST_USER= # / Depreciado
+EMAIL_HOST_PASSWORD= # / Depreciado
+EMAIL_USE_TLS=True # / Depreciado
 
 # Database (Production)
 DB_DATABASE_NAME='postgres'
@@ -67,6 +67,36 @@ DB_HOST=db
 DB_PORT=5432
 
 ```
+
+### Configuração Email
+
+Configuração realizada em ""admin/provedor/provedoremail/""
+
+```
+# Exemplo de configuração
+---
+Prioridade: 0, # Quanto menor mais importante, inicia na posição 0 (zero)
+Host: "minhaempresa.com.br",
+Port: 587,
+Sender name: "Não Responda"
+Sender email: "naoresponda@minhaempresa.com.br",
+Host user: "email_responsavel_por_conectar_no_provedor@minhaempresa.com.br",
+Host password: "senha_de_acesso_do_provedor"
+```
+
+### Configuração SMS
+
+Configuração realizada em ""admin/provedor/provedorsms/""
+
+```
+# Exemplo de configuração
+---
+Prioridade: 0, # Quanto menor mais importante, inicia na posição 0 (zero)
+Account id: "0123456789ABCdef",
+Auth token: "0123456789ABCdef",
+Phone number: "+11000000000"
+```
+
 
 **Há 5 (cinco) formas de configurar o sistema:**
 
