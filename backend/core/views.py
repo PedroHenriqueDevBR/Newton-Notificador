@@ -207,6 +207,13 @@ class NotificarApiView(APIView):
             status=StatusNotificacao.RECEBIDO,
         )
         return notificacao
+    
+    def notificar(self, notificacao: Notificacao, service: NotificadorService):
+        provedor_email = service.selecionar_provedor_email()
+        service.notificar(
+            notificacao=notificacao,
+            provedor_email=provedor_email,
+        )
 
     def post(self, request: HttpRequest):
         sistema = request.user
@@ -215,7 +222,8 @@ class NotificarApiView(APIView):
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
 
-        provedor_email = self.selecionar_provedor_email()
+        service = NotificadorService()
+        provedor_email = service.selecionar_provedor_email()
         if provedor_email is None:
             return Response(
                 data={"Erro": "Nenhum provedor de email configurado"},
@@ -224,29 +232,16 @@ class NotificarApiView(APIView):
 
 
         if self.dados_validos(destinatarios=destinatarios):
-            service = NotificadorService()
             notificacao = self.registrar_notificacao(
                 sistema=sistema,
                 destinatarios=destinatarios,
                 assunto=assunto,
                 conteudo=conteudo,
             )
-            service.notificar(
-                notificacao=notificacao,
-                provedor_email=provedor_email,
-            )
+            self.notificar(notificacao=notificacao, service=service)
 
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-    def selecionar_provedor_email(self):
-        provedores = ProvedorEmail.objects.filter(
-            ativo=True,
-        ).order_by("prioridade")
-
-        if not provedores.exists():
-            return None
-        return provedores[0]
 
     def dados_validos(self, destinatarios):
         if len(destinatarios) == 0:
@@ -286,7 +281,8 @@ class NotificarSMSApiView(APIView):
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
         
-        provedor_sms = self.selecionar_provedor_sms()
+        service = NotificadorService()
+        provedor_sms = service.selecionar_provedor_sms()
         if provedor_sms is None:
             return Response(
                 data={"Erro": "Nenhum provedor de SMS configurado"},
@@ -294,7 +290,6 @@ class NotificarSMSApiView(APIView):
             )
 
         if self.dados_validos(destinatarios=destinatario):
-            service = NotificadorService()
             notificacao = self.registrar_notificacao(
                 sistema=sistema,
                 destinatarios=destinatario,
@@ -309,15 +304,6 @@ class NotificarSMSApiView(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    def selecionar_provedor_sms(self):
-        provedores = ProvedorSMS.objects.filter(
-            ativo=True,
-        ).order_by("prioridade")
-
-        if not provedores.exists():
-            return None
-        return provedores[0]
-
     def dados_validos(self, destinatarios):
         if len(destinatarios) == 0:
             return False
@@ -328,12 +314,20 @@ class NotificacaoInstataneaApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: HttpRequest):
+        service = NotificadorService()
+        provedor_email = service.selecionar_provedor_email()
+        if provedor_email is None:
+            return Response(
+                data={"Erro": "Nenhum provedor de email configurado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         dados = request.data  # type: ignore
         sistema_pk = dados.get("sistema", 0)
         sistemas_query = User.objects.filter(pk=sistema_pk)
         if not sistemas_query.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
-
+        
         destinatarios = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
@@ -341,16 +335,15 @@ class NotificacaoInstataneaApiView(APIView):
 
         notificar_view = NotificarApiView()
         if notificar_view.dados_validos(destinatarios=destinatarios):
-            service = MailService()
             notificacao = notificar_view.registrar_notificacao(
                 sistema=sistema,
                 destinatarios=destinatarios,
                 assunto=assunto,
                 conteudo=conteudo,
             )
-            service.notificar(notificacao=notificacao)
-
+            notificar_view.notificar(notificacao=notificacao, service=service)
             return Response(status=status.HTTP_200_OK)
+        
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 

@@ -37,3 +37,21 @@ class NotificadorService:
                     provedor=provedor_sms,
                     notificacao=notificacao,
                 )
+
+    def selecionar_provedor_email(self):
+        provedores = ProvedorEmail.objects.filter(
+            ativo=True,
+        ).order_by("prioridade")
+
+        if not provedores.exists():
+            return None
+        return provedores[0]
+
+    def selecionar_provedor_sms(self):
+        provedores = ProvedorSMS.objects.filter(
+            ativo=True,
+        ).order_by("prioridade")
+
+        if not provedores.exists():
+            return None
+        return provedores[0]

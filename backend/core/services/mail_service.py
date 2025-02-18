@@ -36,6 +36,7 @@ class CustomMailBackend:
 
         try:
             server = smtplib.SMTP(HOST, PORT)
+            server.connect(HOST, PORT)
             server.ehlo()
             server.starttls(
                 context=ssl.create_default_context(
