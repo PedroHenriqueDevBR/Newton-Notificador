@@ -1,8 +1,10 @@
+from django.conf import settings
+
 from typing import Optional
 from core.services.sms.twilio_sms import TwilioSMS
 from core.services.email.padrao_email_service import PadraoMailBackend
-from provedor.models import ProvedorEmail, ProvedorSMS
 from core.models import Notificacao, NotificacaoEmail, NotificacaoSMS
+from provedor.models import ProvedorEmail, ProvedorSMS
 
 class NotificadorService:
 
@@ -12,6 +14,17 @@ class NotificadorService:
         provedor_email: Optional[ProvedorEmail] = None,
         provedor_sms: Optional[ProvedorSMS] = None,
     ) -> None:
+        if settings.FAKE_MAIL:
+            NotificacaoEmail.objects.create(
+                provedor=provedor_email,
+                notificacao=notificacao,
+            )
+            NotificacaoSMS.objects.create(
+                provedor=provedor_sms,
+                notificacao=notificacao,
+            )
+            return
+        
         if provedor_email is not None:
             mail_service = PadraoMailBackend()
             if mail_service.send_mail(
@@ -22,7 +35,7 @@ class NotificadorService:
                     provedor=provedor_email,
                     notificacao=notificacao,
                 )
-        
+
         if provedor_sms is not None:
             sms_service = TwilioSMS(
                 account_sid=provedor_sms.account_id,

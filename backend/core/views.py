@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AbstractBaseUser, AnonymousUser
 from django.http.request import HttpRequest
@@ -6,21 +8,19 @@ from django.views.generic import View
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models.manager import BaseManager
-from typing import Union
+
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.services.notificacor.notificador_service import NotificadorService
-from provedor.models import ProvedorEmail, ProvedorSMS
 from core.utils.paginacao import LimitePaginacao
 from core.serializers.notificacao_serializers import (
     NotificacaoSerializer,
     SistemaSerializer,
 )
 from core.models import Notificacao, StatusNotificacao
-from core.services.mail_service import MailService
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -207,7 +207,7 @@ class NotificarApiView(APIView):
             status=StatusNotificacao.RECEBIDO,
         )
         return notificacao
-    
+
     def notificar(self, notificacao: Notificacao, service: NotificadorService):
         provedor_email = service.selecionar_provedor_email()
         service.notificar(
@@ -230,7 +230,6 @@ class NotificarApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-
         if self.dados_validos(destinatarios=destinatarios):
             notificacao = self.registrar_notificacao(
                 sistema=sistema,
@@ -247,7 +246,7 @@ class NotificarApiView(APIView):
         if len(destinatarios) == 0:
             return False
         return True
-    
+
 
 class NotificarSMSApiView(APIView):
     permission_classes = [IsAuthenticated]
@@ -280,7 +279,7 @@ class NotificarSMSApiView(APIView):
         destinatario = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
-        
+
         service = NotificadorService()
         provedor_sms = service.selecionar_provedor_sms()
         if provedor_sms is None:
@@ -327,7 +326,7 @@ class NotificacaoInstataneaApiView(APIView):
         sistemas_query = User.objects.filter(pk=sistema_pk)
         if not sistemas_query.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         destinatarios = dados.get("destinatarios", "")
         assunto = dados.get("assunto", "Assunto não definido")
         conteudo = dados.get("conteudo", "")
@@ -343,7 +342,7 @@ class NotificacaoInstataneaApiView(APIView):
             )
             notificar_view.notificar(notificacao=notificacao, service=service)
             return Response(status=status.HTTP_200_OK)
-        
+
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
