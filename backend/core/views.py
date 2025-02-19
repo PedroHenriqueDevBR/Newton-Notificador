@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Dict, List, Union
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AbstractBaseUser, AnonymousUser
@@ -9,10 +9,10 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models.manager import BaseManager
 
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import status  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework.views import APIView  # type: ignore
 
 from core.services.notificacor.notificador_service import NotificadorService
 from core.utils.paginacao import LimitePaginacao
@@ -28,15 +28,15 @@ class IndexView(LoginRequiredMixin, View):
 
     def buscar_notificacoes_sistemas(
         self,
-        selecionados: list,
+        selecionados: List[int],
         pagina: int,
-        status: str,
+        status: str | int,
     ):
         objetos = []
         if len(selecionados) == 0:
             objetos = Notificacao.objects.all().order_by("-id")
         else:
-            sistemas = []
+            sistemas: List[User] = []
             for pk in selecionados:
                 sistemas_query = User.objects.filter(pk=pk)
                 if sistemas_query.exists():
@@ -58,13 +58,13 @@ class IndexView(LoginRequiredMixin, View):
         paginator = Paginator(objetos, 20)
         return paginator.get_page(pagina)
 
-    def formatar_sistemas_args(self, selecionados: list):
+    def formatar_sistemas_args(self, selecionados: list[int]):
         argumento = ""
         for selecionado in selecionados:
             argumento += f"&sistema={selecionado}"
         return argumento
 
-    def formatar_status_args(self, status):
+    def formatar_status_args(self, status: str):
         return f"&status={status}" if status != "" else ""
 
     def get(self, request: HttpRequest):
@@ -75,7 +75,7 @@ class IndexView(LoginRequiredMixin, View):
         selecionados = list(map(lambda pk: int(pk), selecionados))
 
         template_name = "index.html"
-        context = {}
+        context: Dict[str, Any] = {}
         context["notificacoes"] = self.buscar_notificacoes_sistemas(
             selecionados=selecionados, pagina=pagina, status=status
         )
@@ -103,14 +103,18 @@ class NotificacoesApiView(APIView, LimitePaginacao):
             status_arg=status_arg,
             sistemas_arg=sistemas_arg,
         )
-        resultado = self.paginate_queryset(notificacoes, request, view=self)
+        resultado: Any = self.paginate_queryset( # type: ignore
+            notificacoes,
+            request,
+            view=self,
+        )
         serializer = NotificacaoSerializer(resultado, many=True)
-        return self.get_paginated_response(data=serializer.data)
+        return self.get_paginated_response(data=serializer.data) # type: ignore
 
     def carregar_notificacoes(
         self,
         status_arg: str = "",
-        sistemas_arg: list = [],
+        sistemas_arg: list[str] = [],
     ) -> BaseManager[Notificacao]:
         notificacoes = Notificacao.objects.all().order_by("-id")
         if status_arg != "":
@@ -126,7 +130,9 @@ class NotificacoesApiView(APIView, LimitePaginacao):
         return notificacoes
 
     def filtrar_sistema(
-        self, notificacoes: BaseManager[Notificacao], sistemas_arg: list[int]
+        self,
+        notificacoes: BaseManager[Notificacao],
+        sistemas_arg: list[str],
     ):
         sistemas = map(lambda sistema: int(sistema), sistemas_arg)
         return notificacoes.filter(sistema__id__in=sistemas)
@@ -217,10 +223,10 @@ class NotificarApiView(APIView):
 
     def post(self, request: HttpRequest):
         sistema = request.user
-        dados = request.data  # type: ignore
-        destinatarios = dados.get("destinatarios", "")
-        assunto = dados.get("assunto", "Assunto não definido")
-        conteudo = dados.get("conteudo", "")
+        dados: Dict[str, Any] = request.data  # type: ignore
+        destinatarios: Any = dados.get("destinatarios", "")  # type: ignore
+        assunto: Any = dados.get("assunto", "Assunto não definido")  # type: ignore
+        conteudo: Any = dados.get("conteudo", "")  # type: ignore
 
         service = NotificadorService()
         provedor_email = service.selecionar_provedor_email()
@@ -242,7 +248,7 @@ class NotificarApiView(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    def dados_validos(self, destinatarios):
+    def dados_validos(self, destinatarios: List[Any]) -> bool:
         if len(destinatarios) == 0:
             return False
         return True
@@ -275,10 +281,10 @@ class NotificarSMSApiView(APIView):
 
     def post(self, request: HttpRequest):
         sistema = request.user
-        dados = request.data  # type: ignore
-        destinatario = dados.get("destinatarios", "")
-        assunto = dados.get("assunto", "Assunto não definido")
-        conteudo = dados.get("conteudo", "")
+        dados: Dict[str, Any] = request.data  # type: ignore
+        destinatario: Any = dados.get("destinatarios", "")  # type: ignore
+        assunto: Any = dados.get("assunto", "Assunto não definido")  # type: ignore
+        conteudo: Any = dados.get("conteudo", "")  # type: ignore
 
         service = NotificadorService()
         provedor_sms = service.selecionar_provedor_sms()
@@ -303,7 +309,7 @@ class NotificarSMSApiView(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    def dados_validos(self, destinatarios):
+    def dados_validos(self, destinatarios: List[Any]) -> bool:
         if len(destinatarios) == 0:
             return False
         return True
@@ -322,15 +328,15 @@ class NotificacaoInstataneaApiView(APIView):
             )
 
         dados = request.data  # type: ignore
-        sistema_pk = dados.get("sistema", 0)
+        sistema_pk: int = dados.get("sistema", 0)  # type: ignore
         sistemas_query = User.objects.filter(pk=sistema_pk)
         if not sistemas_query.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        destinatarios = dados.get("destinatarios", "")
-        assunto = dados.get("assunto", "Assunto não definido")
-        conteudo = dados.get("conteudo", "")
-        sistema = sistemas_query[0]
+        destinatarios: Any = dados.get("destinatarios", "")  # type: ignore
+        assunto: Any = dados.get("assunto", "Assunto não definido")  # type: ignore
+        conteudo: Any = dados.get("conteudo", "")  # type: ignore
+        sistema: Any = sistemas_query[0]
 
         notificar_view = NotificarApiView()
         if notificar_view.dados_validos(destinatarios=destinatarios):

@@ -1,18 +1,19 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from typing import Any, Dict, List
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ""
-DEBUG = True
-ALLOWED_HOSTS = []
-CSRF_TRUSTED_ORIGINS = []
+SECRET_KEY: str = ""
+DEBUG: bool = True
+ALLOWED_HOSTS: List[str] = []
+CSRF_TRUSTED_ORIGINS: List[str] = []
 
 # Application definition
-INSTALLED_APPS = [
+INSTALLED_APPS: List[str] = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -29,7 +30,7 @@ INSTALLED_APPS = [
     "core",
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE: List[str] = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -40,7 +41,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-REST_FRAMEWORK = {
+REST_FRAMEWORK: Dict[str, Any] = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
@@ -52,9 +53,9 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS: List[str] = []
 
-SIMPLE_JWT = {
+SIMPLE_JWT: Dict[str, Any] = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
     'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
@@ -64,23 +65,23 @@ SIMPLE_JWT = {
 
 
 # Mail
-EMAIL_HOST = ""
-EMAIL_PORT = ""
-DEFAULT_FROM_EMAIL = ""
-EMAIL_HOST_USER = ""
-EMAIL_HOST_PASSWORD = ""
-EMAIL_USE_TLS = ""
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-FAKE_MAIL=False
+EMAIL_HOST: str = ""
+EMAIL_PORT: str = ""
+DEFAULT_FROM_EMAIL: str = ""
+EMAIL_HOST_USER: str = ""
+EMAIL_HOST_PASSWORD: str = ""
+EMAIL_USE_TLS: str = ""
+EMAIL_BACKEND: str = "django.core.mail.backends.smtp.EmailBackend"
+FAKE_MAIL: bool = False
 
 # Auth
-LOGIN_URL = "/admin/"
-LOGOUT_REDIRECT_URL = "/admin/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_URL: str = "/admin/"
+LOGOUT_REDIRECT_URL: str = "/admin/"
+LOGIN_REDIRECT_URL: str = "/"
 
-ROOT_URLCONF = "notificador.urls"
+ROOT_URLCONF: str = "notificador.urls"
 
-TEMPLATES = [
+TEMPLATES: List[Dict[str, Any]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": ["templates"],
@@ -96,13 +97,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "notificador.wsgi.application"
+WSGI_APPLICATION: str = "notificador.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
+DATABASES: Dict[str, Any] = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
@@ -120,7 +121,7 @@ N2 = "django.contrib.auth.password_validation.MinimumLengthValidator"
 N3 = "django.contrib.auth.password_validation.CommonPasswordValidator"
 N4 = "django.contrib.auth.password_validation.NumericPasswordValidator"
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: List[Dict[str, Any]] = [
     {"NAME": N1},
     {"NAME": N2},
     {"NAME": N3},
@@ -130,23 +131,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
-LANGUAGE_CODE = "pt-br"
-TIME_ZONE = "America/Fortaleza"
-USE_I18N = True
-USE_TZ = True
-USE_L10N = True
+LANGUAGE_CODE: str = "pt-br"
+TIME_ZONE: str = "America/Fortaleza"
+USE_I18N: bool = True
+USE_TZ: bool = True
+USE_L10N: bool = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join("staticfiles")
-MEDIA_URL = "media/"
-MEDIA_ROOT = os.path.join("mediafiles")
+STATIC_URL: str = "static/"
+STATIC_ROOT: str = os.path.join("staticfiles")
+MEDIA_URL: str = "media/"
+MEDIA_ROOT: str = os.path.join("mediafiles")
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
